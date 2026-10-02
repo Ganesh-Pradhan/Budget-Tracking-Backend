@@ -1,0 +1,3596 @@
+@BudgetTracker.API_HostAddress = http://localhost:5264
+
+### Test Database
+
+GET {{BudgetTracker.API_HostAddress}}/api/test/database
+Accept: application/json
+
+### Get Transactions
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions
+Accept: application/json
+
+
+### Get Transaction By ID
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions/9999
+Accept: application/json
+
+
+### Create Transaction
+
+POST {{BudgetTracker.API_HostAddress}}/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Need",
+  "amount": 500,
+  "transactionDate": "2026-08-31",
+  "description": "Test transaction from API"
+}
+
+
+### Update Transaction
+
+PUT {{BudgetTracker.API_HostAddress}}/api/transactions/6
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Want",
+  "amount": 750,
+  "transactionDate": "2026-09-01",
+  "description": "Updated transaction from API"
+}
+
+
+### Delete Transaction
+
+DELETE {{BudgetTracker.API_HostAddress}}/api/transactions/6
+Accept: application/json
+
+
+
+
+### Search Transaction - Test
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?search=GroModilecery
+Accept: application/json
+
+
+### Filter by Payment Mode
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?paymentModeId=145
+Accept: application/json
+
+
+
+### Filter by Transaction Type - Need
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?transactionType=Expenseg
+Accept: application/json
+
+
+
+
+### Search + Payment Mode
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?search=Test&paymentModeId=1
+Accept: application/json
+
+
+### Payment Mode + Type
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?paymentModeId=1&transactionType=Need
+Accept: application/json
+
+
+
+### Search + Payment Mode + Type
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?search=Api&paymentModeId=1&transactionType=Need
+Accept: application/json
+
+
+
+### Filter Transactions by Year
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?year=2026
+Accept: application/json
+
+
+### Filter Transactions by Month
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?month=8
+Accept: application/json
+
+
+### Filter Transactions by August 2026
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?year=2026&month=9
+Accept: application/json
+
+
+
+### Monthly + Type Filter
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?year=2026&month=8&transactionType=Need
+Accept: application/json
+
+
+
+### Get Transactions - Default Pagination
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions
+Accept: application/json
+
+
+### Transactions - Page 1
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?page=1&pageSize=1
+Accept: application/json
+
+
+### Transactions - Page 2
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?page=2&pageSize=1
+Accept: application/json
+
+
+
+### Transactions - Page Size 2
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?page=0&pageSize=2
+Accept: application/json
+
+
+### Search + Filter + Date + Pagination
+
+GET {{BudgetTracker.API_HostAddress}}/api/transactions?search=Test&paymentModeId=1&transactionType=Need&year=2026&month=8&page=1&pageSize=5
+Accept: application/json
+
+
+
+
+### ----------------------------------------------------------------
+
+### Get all incomes
+GET {{BudgetTracker.API_HostAddress}}/api/incomes
+Accept: application/json
+
+###
+
+### Get income by ID
+GET {{BudgetTracker.API_HostAddress}}/api/incomes/1
+Accept: application/json
+
+###
+
+### Create income
+POST {{BudgetTracker.API_HostAddress}}/api/incomes
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "sourceId": 1,
+  "amount": 25000,
+  "incomeDate": "2026-09-14",
+  "description": "Monthly salary"
+} 
+
+###
+
+### Update income
+PUT {{BudgetTracker.API_HostAddress}}/api/incomes/1
+Content-Type: application/json
+
+{
+  "accountId": 1,
+  "sourceId": 1,
+  "amount": 28000,
+  "incomeDate": "2026-09-14",
+  "description": "Updated monthly salary"
+}
+
+###
+
+### Delete income
+DELETE {{BudgetTracker.API_HostAddress}}/api/incomes/1
+
+
+### Income - Search
+GET {{BudgetTracker.API_HostAddress}}/api/incomes?search=salary
+Accept: application/json
+
+
+
+### Income - Filter by Source
+GET {{BudgetTracker.API_HostAddress}}/api/incomes?sourceId=1
+Accept: application/json
+
+
+### Income - Filter by Year
+GET {{BudgetTracker.API_HostAddress}}/api/incomes?year=2026
+Accept: application/json
+
+
+### Income - Filter by Month
+GET {{BudgetTracker.API_HostAddress}}/api/incomes?year=2026&month=9
+Accept: application/json
+
+
+
+
+### Income - Pagination
+GET {{BudgetTracker.API_HostAddress}}/api/incomes?page=1&pageSize=1
+Accept: application/json
+
+
+
+### Income - Filters + Pagination
+GET {{BudgetTracker.API_HostAddress}}/api/incomes?sourceId=1&year=2026&page=1&pageSize=2
+Accept: application/json
+
+
+### Income - Total
+GET {{BudgetTracker.API_HostAddress}}/api/incomes/summary/total
+Accept: application/json
+
+
+### Income - Monthly Total
+GET {{BudgetTracker.API_HostAddress}}/api/incomes/summary/monthly?year=2026&month=9
+Accept: application/json
+
+### Income - By Source
+GET {{BudgetTracker.API_HostAddress}}/api/incomes/summary/by-source
+Accept: application/json
+
+
+
+
+### Create expense
+POST {{BudgetTracker.API_HostAddress}}/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "accountId": 1,
+  "paymentModeId": 3,
+  "amount": 500,
+  "expenseDate": "2026-09-17",
+  "description": "Lunch"
+}
+
+
+### Get all expenses
+GET {{BudgetTracker.API_HostAddress}}/api/expenses
+Accept: application/json
+
+###
+
+### Get expense by ID
+GET {{BudgetTracker.API_HostAddress}}/api/expenses/3
+Accept: application/json
+
+
+
+### Update expense
+PUT {{BudgetTracker.API_HostAddress}}/api/expenses/3
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "accountId": 1,
+  "paymentModeId": 4,
+  "amount": 650,
+  "expenseDate": "2026-09-17",
+  "description": "Lunch and snacks"
+}
+
+
+  ### Delete expense
+DELETE {{BudgetTracker.API_HostAddress}}/api/expenses/3
+
+### Verify deleted expense
+GET {{BudgetTracker.API_HostAddress}}/api/expenses/3
+Accept: application/json
+
+
+### Expense - Search
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?search=lunch
+Accept: application/json
+
+
+### Expense - Filter by Category
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?categoryId=1
+Accept: application/json
+
+
+  ### Expense - Filter by Payment Mode
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?paymentModeId=4
+Accept: application/json
+
+
+### Expense - Filter by Year
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?year=2026
+Accept: application/json  
+
+### Expense - Filter by Month
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?year=2026&month=9
+Accept: application/json
+
+
+
+### Expense - Combined Filters
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?categoryId=1&paymentModeId=4&year=2026&month=9
+Accept: application/json
+
+
+### Expense - Pagination
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?page=1&pageSize=2
+Accept: application/json
+
+
+
+### Expense - Filters + Pagination
+GET {{BudgetTracker.API_HostAddress}}/api/expenses?categoryId=1&year=2026&page=1&pageSize=2
+Accept: application/json
+
+
+### Expense - totoal
+GET {{BudgetTracker.API_HostAddress}}/api/expenses/summary/total
+Accept: application/json
+
+### Expense - salary + month
+GET {{BudgetTracker.API_HostAddress}}/api/expenses/summary/monthly?year=2026&month=8
+Accept: application/json
+
+
+### Expense by-category
+GET {{BudgetTracker.API_HostAddress}}/api/expenses/summary/by-category
+Accept: application/json
+
+
+### Dashboard Summary
+
+GET {{BudgetTracker.API_HostAddress}}/api/dashboard/summary
+Accept: application/json
+
+
+
+### Dashboard Monthly Summary
+
+GET {{BudgetTracker.API_HostAddress}}/api/dashboard/monthly-summary?year=2026
+Accept: application/json
+
+### Dashboard Recent Transactions
+
+GET {{BudgetTracker.API_HostAddress}}/api/dashboard/recent-transactions
+Accept: application/json
+
+
+### Dashboard Expense By Category
+
+GET {{BudgetTracker.API_HostAddress}}/api/dashboard/expense-by-category
+Accept: application/json
+
+
+### Get All Budgets
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets
+Accept: application/json
+
+
+### Create Budget
+
+POST {{BudgetTracker.API_HostAddress}}/api/budgets
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "budgetYear": 2026,
+  "budgetMonth": 9,
+  "budgetAmount": 20000
+}
+
+
+### Get Budget by ID
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets/2
+Accept: application/json
+
+
+### Duplicate Budget Test
+
+POST {{BudgetTracker.API_HostAddress}}/api/budgets
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "budgetYear": 2026,
+  "budgetMonth": 9,
+  "budgetAmount": 30000
+}
+
+
+
+### Update Budget
+
+PUT {{BudgetTracker.API_HostAddress}}/api/budgets/2
+Content-Type: application/json
+
+{
+  "budgetMonth": 9,
+  "budgetAmount": 22000
+}
+
+
+### Delete Budget
+
+DELETE {{BudgetTracker.API_HostAddress}}/api/budgets/2
+
+
+
+### Verify Deleted Budget
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets/2
+Accept: application/json
+
+
+### Budget - Get All
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets
+Accept: application/json
+
+
+### Budget - Filter by User
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets?userId=4
+Accept: application/json
+
+
+
+### Budget - Filter by Year
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets?year=2025
+Accept: application/json
+
+
+### Budget - Filter by Month
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets?month=9
+Accept: application/json
+
+
+### Budget - Filter by Year and Month
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets?year=2026&month=9
+Accept: application/json
+
+
+
+### Budget - Pagination
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets?page=1&pageSize=5
+Accept: application/json
+
+
+### Budget - Filter + Pagination
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets?userId=4&year=2026&page=1&pageSize=1
+Accept: application/json
+
+
+### Budget - Total
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets/summary/total
+Accept: application/json
+
+
+### Budget - Monthly
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets/summary/monthly?userId=4&year=2026&month=8
+Accept: application/json
+
+
+### Budget vs Expense
+
+GET {{BudgetTracker.API_HostAddress}}/api/budgets/summary/vs-expense?userId=4&year=2026&month=8
+Accept: application/json
+
+
+### Get all budget categories
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories
+Accept: application/json
+
+
+### Create budget category
+POST {{BudgetTracker.API_HostAddress}}/api/BudgetCategories
+Content-Type: application/json
+
+{
+  "budgetId": 1,
+  "categoryId": 1,
+  "allocatedAmount": 5000
+}
+
+
+
+### Get budget category by ID
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/4
+Accept: application/json
+
+
+
+### Update budget category
+PUT {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/4
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "allocatedAmount": 6000
+}
+
+
+### Test duplicate category validation
+PUT {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/4
+Content-Type: application/json
+
+{
+  "categoryId": 2,
+  "allocatedAmount": 6000
+}
+
+
+### Filter by budget
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories?budgetId=1
+Accept: application/json
+
+
+
+### Filter by category
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories?categoryId=1
+Accept: application/json
+
+
+
+### Filter by budget and category
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories?budgetId=1&categoryId=1
+Accept: application/json
+
+
+### Budget categories pagination
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories?page=1&pageSize=1
+Accept: application/json
+
+
+### Budget categories page 2
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories?page=2&pageSize=1
+Accept: application/json
+
+
+### Delete budget category
+DELETE {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/5
+
+### Verify deleted budget category
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/5
+Accept: application/json
+
+
+### Get total allocated amount
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/summary/total
+Accept: application/json
+
+
+### Get allocation by category
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/summary/by-category
+Accept: application/json
+
+
+
+### Get budget versus allocated amount
+GET {{BudgetTracker.API_HostAddress}}/api/BudgetCategories/summary/vs-budget?budgetId=1
+Accept: application/json
+
+
+### Get all savings goals
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals
+Accept: application/json
+
+
+
+### Create savings goal
+POST {{BudgetTracker.API_HostAddress}}/api/SavingsGoals
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "goalName": "New Camera",
+  "targetAmount": 80000,
+  "savedAmount": 10000,
+  "targetDate": "2027-06-30"
+}
+
+
+### Get savings goal by ID
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/2
+Accept: application/json
+
+
+
+### Update savings goal
+PUT {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/2
+Content-Type: application/json
+
+{
+  "goalName": "New Camera",
+  "targetAmount": 90000,
+  "savedAmount": 20000,
+  "targetDate": "2027-06-30"
+}
+
+
+
+### Test invalid savings goal
+PUT {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/2
+Content-Type: application/json
+
+{
+  "goalName": "New Camera",
+  "targetAmount": 50000,
+  "savedAmount": 60000,
+  "targetDate": "2027-06-30"
+}
+
+
+### Get savings goals by user
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals?userId=4
+Accept: application/json
+
+
+
+### Search savings goals
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals?search=Emergency
+Accept: application/json
+
+
+### Search savings goals by user and name
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals?userId=4&search=Emergency
+Accept: application/json
+
+
+### Savings goals - Page 1
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals?page=1&pageSize=1
+Accept: application/json
+
+
+### Savings goals - Page 2
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals?page=2&pageSize=1
+Accept: application/json
+
+
+
+### Delete savings goal
+DELETE {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/2
+Accept: application/json
+
+
+### Verify deleted savings goal
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/2
+Accept: application/json
+
+### Get total savings goal target
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/summary/total-target
+Accept: application/json
+
+
+### Get total savings goal saved amount
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/summary/total-saved
+Accept: application/json
+
+
+### Get savings goal progress
+GET {{BudgetTracker.API_HostAddress}}/api/SavingsGoals/summary/progress
+Accept: application/json
+
+
+### Get all accounts
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts
+Accept: application/json
+
+
+### Get accounts by user
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts?userId=4
+Accept: application/json
+
+
+### Get accounts by account type
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts?accountType=Bank
+Accept: application/json
+
+
+### Search accounts by name
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts?search=Salary
+Accept: application/json
+
+
+### Search accounts with combined filters
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts?userId=4&accountType=Bank&search=Salary
+Accept: application/json
+
+
+### Accounts - Page 1
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts?page=1&pageSize=1
+Accept: application/json
+
+
+### Accounts - Page 2
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts?page=2&pageSize=1
+Accept: application/json
+
+
+### Get account by ID
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts/1
+Accept: application/json
+
+
+### Create test account
+POST {{BudgetTracker.API_HostAddress}}/api/Accounts
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountType": "Wallet",
+  "accountName": "Test Wallet",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 5000,
+  "isActive": true
+}
+
+
+
+### Update test account
+PUT {{BudgetTracker.API_HostAddress}}/api/Accounts/4
+Content-Type: application/json
+
+{
+  "accountType": "Wallet",
+  "accountName": "Main Wallet",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 7500,
+  "isActive": true
+}
+
+
+### Update non-existing account
+PUT {{BudgetTracker.API_HostAddress}}/api/Accounts/999
+Content-Type: application/json
+
+{
+  "accountType": "Wallet",
+  "accountName": "Test",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 1000,
+  "isActive": true
+}
+
+
+### Delete test account
+DELETE {{BudgetTracker.API_HostAddress}}/api/Accounts/4
+
+
+  ### Verify deleted account
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts/4
+
+### Account summary
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts/summary?userId=4
+
+
+### Account summary - all users
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts/summary
+
+
+
+### Deactivate account
+PUT {{BudgetTracker.API_HostAddress}}/api/Accounts/2
+Content-Type: application/json
+
+{
+  "accountType": "Bank",
+  "accountName": "Savings Account",
+  "bankName": "HDFC",
+  "accountNumber": "XXXXXX5678",
+  "balance": 40000,
+  "isActive": false
+}
+
+
+### Account summary after deactivation
+GET {{BudgetTracker.API_HostAddress}}/api/Accounts/summary?userId=4
+
+
+### Restore Savings Account
+PUT {{BudgetTracker.API_HostAddress}}/api/Accounts/2
+Content-Type: application/json
+
+{
+  "accountType": "Bank",
+  "accountName": "Savings Account",
+  "bankName": "HDFC",
+  "accountNumber": "XXXXXX5678",
+  "balance": 40000,
+  "isActive": true
+}
+
+
+  ### Get all recurring transactions
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions
+
+### Get recurring transactions by user
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?userId=4
+
+
+### Get recurring transaction by ID - not found
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+
+
+  ### Create recurring transaction
+POST {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 3,
+  "transactionType": "Expense",
+  "amount": 1500,
+  "description": "Monthly grocery",
+  "frequency": "Monthly",
+  "startDate": "2026-09-01",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-01",
+  "isActive": true
+}
+
+
+
+### Get all recurring transactions
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions
+
+### Get recurring transaction by ID
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+
+
+### Get recurring transactions by account
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?accountId=1
+
+### Get recurring transactions by transaction type
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?transactionType=Expense
+
+
+### Get recurring transactions by frequency
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?frequency=Monthly
+
+### Get active recurring transactions
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?isActive=true
+
+### Search recurring transactions
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?search=grocery
+
+### Combined recurring transaction filters
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?userId=4&accountId=1&transactionType=Expense&frequency=Monthly&isActive=true&search=grocery
+
+### Recurring transactions pagination
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions?page=1&pageSize=1
+
+### Update recurring transaction
+PUT {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 1800,
+  "description": "Monthly grocery and essentials",
+  "frequency": "Monthly",
+  "startDate": "2026-09-01",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-01",
+  "isActive": true
+}
+
+### Update recurring transaction - not found
+PUT {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/999
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 2000,
+  "description": "Test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-01",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-01",
+  "isActive": true
+}
+
+
+### Update recurring transaction - invalid end date
+PUT {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 2000,
+  "description": "Invalid date test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-15",
+  "endDate": "2026-09-10",
+  "nextOccurrenceDate": "2026-10-01",
+  "isActive": true
+}
+
+
+### Update recurring transaction - invalid next occurrence date
+PUT {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 2000,
+  "description": "Invalid next date test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-15",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-09-10",
+  "isActive": true
+}
+
+  ### Delete recurring transaction
+DELETE {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+
+### Delete recurring transaction
+DELETE {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+
+
+### Get deleted recurring transaction
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/1
+
+
+
+### Recurring transactions summary
+GET {{BudgetTracker.API_HostAddress}}/api/RecurringTransactions/summary?userId=4
+
+
+### Get all transfers
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers
+
+
+  ### Get transfer by ID - not found
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+
+
+### Create transfer
+POST {{BudgetTracker.API_HostAddress}}/api/Transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 5000,
+  "description": "Transfer to savings",
+  "transferDate": "2026-09-18"
+}
+
+
+### Get transfer by ID
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+
+
+### Get transfers by user
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers?userId=4
+
+
+### Get transfers by from account
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers?fromAccountId=1
+
+
+### Get transfers by to account
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers?toAccountId=2
+
+
+
+  ### Search transfers
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers?search=savings
+
+
+  ### Get transfers with combined filters
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers?userId=4&fromAccountId=1&toAccountId=2&search=savings
+
+
+### Get transfers with pagination
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers?page=1&pageSize=1
+
+
+### Update transfer
+PUT {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 6000,
+  "description": "Monthly savings transfer",
+  "transferDate": "2026-09-18"
+}
+
+
+  ### Update transfer - not found
+PUT {{BudgetTracker.API_HostAddress}}/api/Transfers/999
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 3000,
+  "description": "Test",
+  "transferDate": "2026-09-18"
+}
+
+
+### Update transfer - same account validation
+PUT {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 1,
+  "amount": 3000,
+  "description": "Invalid same account transfer",
+  "transferDate": "2026-09-18"
+}
+
+
+### Update transfer - invalid from account
+PUT {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+Content-Type: application/json
+
+{
+  "fromAccountId": 999,
+  "toAccountId": 2,
+  "amount": 3000,
+  "description": "Invalid from account test",
+  "transferDate": "2026-09-18"
+}
+
+
+### Update transfer - invalid to account
+PUT {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 999,
+  "amount": 3000,
+  "description": "Invalid to account test",
+  "transferDate": "2026-09-18"
+}
+
+
+### Delete transfer
+DELETE {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+
+
+  ### Get deleted transfer
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers/1
+
+
+  ### Transfer summary
+GET {{BudgetTracker.API_HostAddress}}/api/Transfers/summary?userId=4
+
+
+### Dashboard monthly summary
+GET {{BudgetTracker.API_HostAddress}}/api/Dashboard/monthly-summary?year=2026
+
+
+### Dashboard monthly summary
+  GET http://localhost:5264/api/Dashboard/monthly-summary?year=2026
+
+
+  
+### Dashboard monthly summary - id
+  GET http://localhost:5264/api/Dashboard/summary?userId=4
+
+
+
+### Dashboard summary
+  GET http://localhost:5264/api/Dashboard/summary
+
+
+### Dashboard monthly summary - id
+GET http://localhost:5264/api/Dashboard/monthly-summary?year=2026&userId=4
+
+### Dashboard monthly summary 
+GET http://localhost:5264/api/Dashboard/monthly-summary?year=2026
+
+
+### recent transaction summary - id
+GET http://localhost:5264/api/Dashboard/recent-transactions?userId=4
+
+### recent transaction catagory summary - id
+GET http://localhost:5264/api/Dashboard/expense-by-category?userId=4
+
+### recent transaction catagory summary - id
+GET http://localhost:5264/api/Dashboard/summary?userId=4
+
+
+
+### Create test income
+POST http://localhost:5264/api/incomes
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "sourceId": 1,
+  "amount": 1000,
+  "incomeDate": "2026-09-18",
+  "description": "Test income balance"
+}
+
+
+
+### Update income
+PUT http://localhost:5264/api/incomes/3
+Content-Type: application/json
+
+{
+  "accountId": 1,
+  "sourceId": 1,
+  "amount": 30000,
+  "incomeDate": "2026-09-18",
+  "description": "Updated salary income"
+}
+
+
+
+### Move income to Savings Account
+PUT http://localhost:5264/api/incomes/3
+Content-Type: application/json
+
+{
+  "accountId": 2,
+  "sourceId": 1,
+  "amount": 30000,
+  "incomeDate": "2026-09-18",
+  "description": "Income moved to savings"
+}
+
+
+  ### Delete income
+DELETE http://localhost:5264/api/incomes/3
+
+
+
+### Create Expense - Account Balance Test
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 3,
+  "amount": 100,
+  "expenseDate": "2026-09-18T00:00:00",
+  "description": "Expense balance test"
+}
+
+
+  ### Create Expense - Insufficient Balance Test
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 3,
+  "amount": 60000,
+  "expenseDate": "2026-09-18T00:00:00",
+  "description": "Insufficient balance test"
+}
+
+
+
+  ### Update Expense - Same Account Test
+PUT http://localhost:5264/api/expenses/4
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 3,
+  "amount": 200,
+  "expenseDate": "2026-09-18T00:00:00",
+  "description": "Expense update balance test"
+}
+
+
+
+  ### Update Expense - Change Account Test
+PUT http://localhost:5264/api/expenses/4
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 2,
+  "categoryId": 1,
+  "paymentModeId": 3,
+  "amount": 200,
+  "expenseDate": "2026-09-18T00:00:00",
+  "description": "Expense account change test"
+}
+
+
+
+  ### Update Expense - Insufficient Balance Test
+PUT http://localhost:5264/api/expenses/4
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 2,
+  "categoryId": 1,
+  "paymentModeId": 3,
+  "amount": 50000,
+  "expenseDate": "2026-09-18T00:00:00",
+  "description": "Insufficient update test"
+}
+
+
+
+  ### Delete Expense - Balance Restore Test
+DELETE http://localhost:5264/api/expenses/4
+
+
+  ### Verify Expense 4 Deleted
+GET http://localhost:5264/api/expenses/4
+
+
+### Create Transfer - Balance Test
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 1000,
+  "transferDate": "2026-09-18T00:00:00",
+  "description": "Transfer balance test"
+}
+
+  ### Create Transfer - Insufficient Balance Test
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 60000,
+  "transferDate": "2026-09-18T00:00:00",
+  "description": "Insufficient transfer test"
+}
+
+
+### Update Transfer - Same Accounts Test
+PUT http://localhost:5264/api/transfers/2
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 2000,
+  "transferDate": "2026-09-18T00:00:00",
+  "description": "Transfer update balance test"
+}
+
+
+### Update Transfer - Change Accounts Test
+PUT http://localhost:5264/api/transfers/2
+Content-Type: application/json
+
+{
+  "fromAccountId": 2,
+  "toAccountId": 1,
+  "amount": 1000,
+  "transferDate": "2026-09-18T00:00:00",
+  "description": "Transfer account change test"
+}
+
+
+### Update Transfer - Insufficient Balance Test
+PUT http://localhost:5264/api/transfers/2
+Content-Type: application/json
+
+{
+  "fromAccountId": 2,
+  "toAccountId": 1,
+  "amount": 50000,
+  "transferDate": "2026-09-18T00:00:00",
+  "description": "Insufficient transfer update test"
+}
+
+
+### Delete Transfer - Balance Restore Test
+DELETE http://localhost:5264/api/transfers/2
+
+
+  ### Verify Transfer 2 Deleted
+GET http://localhost:5264/api/transfers/2
+
+
+
+ ### Test Create Incomes
+  POST http://localhost:5264/api/incomes
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "sourceId": 1,
+  "accountId": 2,
+  "amount": 1000,
+  "incomeDate": "2026-09-18",
+  "description": "Inactive account test"
+}
+
+
+
+ ### Test Create Incomes
+  POST http://localhost:5264/api/incomes
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "sourceId": 1,
+  "accountId": 1,
+  "amount": 100,
+  "incomeDate": "2026-09-18",
+  "description": "Active account test"
+}
+
+### 
+ DELETE http://localhost:5264/api/incomes/7
+
+
+ ###
+  POST http://localhost:5264/api/Expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 2,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "amount": 100,
+  "expenseDate": "2026-09-18",
+  "description": "Inactive account test"
+}
+
+
+###
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "amount": 100,
+  "expenseDate": "2026-09-18",
+  "description": "Active account test"
+}
+
+###
+  DELETE http://localhost:5264/api/expenses/5
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 2,
+  "toAccountId": 1,
+  "amount": 100,
+  "transferDate": "2026-09-18",
+  "description": "Inactive from account test"
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 100,
+  "transferDate": "2026-09-19",
+  "description": "Inactive to account test"
+}
+
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 3,
+  "amount": 100,
+  "transferDate": "2026-09-19",
+  "description": "Active account test"
+}
+
+
+###
+DELETE http://localhost:5264/api/transfers/3
+
+
+###
+PUT http://localhost:5264/api/incomes/4
+Content-Type: application/json
+
+{
+  "sourceId": 1,
+  "accountId": 2,
+  "amount": 25000,
+  "incomeDate": "2026-09-14",
+  "description": "Inactive account update test"
+}
+
+
+###
+PUT http://localhost:5264/api/incomes/4
+Content-Type: application/json
+
+{
+  "sourceId": 1,
+  "accountId": 1,
+  "amount": 26000,
+  "incomeDate": "2026-09-14",
+  "description": "Salary income updated"
+}
+
+
+
+###
+PUT http://localhost:5264/api/incomes/4
+Content-Type: application/json
+
+{
+  "sourceId": 1,
+  "accountId": 1,
+  "amount": 25000,
+  "incomeDate": "2026-09-14",
+  "description": "Monthly salary"
+}
+
+
+
+###
+PUT http://localhost:5264/api/expenses/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "accountId": 2,
+  "paymentModeId": 1,
+  "amount": 450,
+  "expenseDate": "2026-09-17",
+  "description": "Inactive account update test"
+}
+
+
+
+###
+PUT http://localhost:5264/api/expenses/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "accountId": 1,
+  "paymentModeId": 1,
+  "amount": 500,
+  "expenseDate": "2026-09-17",
+  "description": "Expense update test"
+}
+
+
+
+
+###
+PUT http://localhost:5264/api/expenses/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "accountId": 1,
+  "paymentModeId": 1,
+  "amount": 450,
+  "expenseDate": "2026-09-17",
+  "description": null
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 3,
+  "amount": 100,
+  "transferDate": "2026-09-19",
+  "description": "Transfer update test"
+}
+
+
+###
+PUT http://localhost:5264/api/transfers/4
+Content-Type: application/json
+
+{
+  "fromAccountId": 2,
+  "toAccountId": 3,
+  "amount": 100,
+  "transferDate": "2026-09-19",
+  "description": "Inactive from account update test"
+}
+
+
+###
+PUT http://localhost:5264/api/transfers/4
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 100,
+  "transferDate": "2026-09-19",
+  "description": "Inactive to account update test"
+}
+
+
+
+###
+PUT http://localhost:5264/api/transfers/4
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 3,
+  "amount": 200,
+  "transferDate": "2026-09-19",
+  "description": "Transfer update test"
+}
+
+
+
+###
+DELETE http://localhost:5264/api/transfers/4
+
+
+
+###
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "amount": 50000,
+  "expenseDate": "2026-09-19",
+  "description": "Insufficient balance test"
+}
+
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 3,
+  "amount": 50000,
+  "transferDate": "2026-09-19",
+  "description": "Insufficient transfer test"
+}
+
+
+
+###
+PUT http://localhost:5264/api/expenses/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "accountId": 1,
+  "paymentModeId": 1,
+  "amount": 50000,
+  "expenseDate": "2026-09-19",
+  "description": "Insufficient update test"
+}
+
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 3,
+  "amount": 100,
+  "transferDate": "2026-09-19",
+  "description": "Insufficient transfer update test"
+}
+
+
+
+###
+PUT http://localhost:5264/api/transfers/5
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 3,
+  "amount": 50000,
+  "transferDate": "2026-09-19",
+  "description": "Insufficient transfer update"
+}
+
+
+###
+DELETE http://localhost:5264/api/transfers/5
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 1,
+  "amount": 100,
+  "transferDate": "2026-09-19",
+  "description": "Same account test"
+}
+
+
+###
+GET http://localhost:5264/api/dashboard/summary?userId=4
+
+
+###
+GET http://localhost:5264/api/dashboard/monthly-summary?userId=4&year=2026&month=9
+
+
+###
+GET http://localhost:5264/api/dashboard/recent-transactions?userId=4
+
+
+###
+GET http://localhost:5264/api/dashboard/expense-by-category?userId=4
+
+
+###
+GET http://localhost:5264/api/accounts/summary?userId=4
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&isActive=true
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&isActive=false
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&isActive=true
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&isActive=false
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&accountType=Bank
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&accountType=Bank&isActive=true
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&search=Salary
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&page=1&pageSize=2
+
+
+###
+GET http://localhost:5264/api/accounts?userId=4&page=2&pageSize=2
+
+###
+POST http://localhost:5264/api/accounts
+Content-Type: application/json
+
+{
+  "userId": 9999,
+  "accountType": "Bank",
+  "accountName": "Invalid User Account",
+  "bankName": "Test Bank",
+  "accountNumber": "XXXX9999",
+  "balance": 1000,
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 2,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 1000,
+  "description": "Inactive account test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-19",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+
+###
+DELETE http://localhost:5264/api/accounts/5
+
+
+###
+DELETE http://localhost:5264/api/accounts/3
+
+
+###
+DELETE http://localhost:5264/api/accounts/1
+
+###
+DELETE http://localhost:5264/api/accounts/6
+
+
+  ###
+  DELETE http://localhost:5264/api/recurringtransactions/2
+
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 0,
+  "description": "Invalid amount test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-19",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 1000,
+  "description": "Monthly grocery",
+  "frequency": "Monthly",
+  "startDate": "2026-09-19",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+
+###
+  POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": -500,
+  "description": "Negative amount test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-19",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+
+
+  ###
+  POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 500,
+  "description": "Invalid end date test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": "2026-09-19",
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 500,
+  "description": "Invalid next occurrence test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-09-19",
+  "isActive": true
+}
+
+
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 999,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 500,
+  "description": "Invalid account test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-20",
+  "isActive": true
+}
+
+
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 999,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 500,
+  "description": "Invalid category test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-20",
+  "isActive": true
+}
+
+
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 999,
+  "transactionType": "Expense",
+  "amount": 500,
+  "description": "Invalid payment mode test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-20",
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/recurringtransactions
+Content-Type: application/json
+
+{
+  "userId": 999,
+  "accountId": 1,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 500,
+  "description": "Invalid user test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-20",
+  "isActive": true
+}
+
+
+
+  ###
+  PUT http://localhost:5264/api/recurringtransactions/3
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 1200,
+  "description": "Monthly grocery updated",
+  "frequency": "Monthly",
+  "startDate": "2026-09-19",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+
+
+###
+PUT http://localhost:5264/api/recurringtransactions/3
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 0,
+  "description": "Invalid update amount",
+  "frequency": "Monthly",
+  "startDate": "2026-09-19",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/recurringtransactions/3
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 1200,
+  "description": "Invalid update date",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": "2026-09-19",
+  "nextOccurrenceDate": "2026-10-20",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/recurringtransactions/3
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 1200,
+  "description": "Invalid next occurrence update",
+  "frequency": "Monthly",
+  "startDate": "2026-09-20",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-09-19",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/recurringtransactions/999
+Content-Type: application/json
+
+{
+  "transactionType": "Expense",
+  "amount": 1200,
+  "description": "Not found update test",
+  "frequency": "Monthly",
+  "startDate": "2026-09-19",
+  "endDate": null,
+  "nextOccurrenceDate": "2026-10-19",
+  "isActive": true
+}
+
+
+###
+DELETE http://localhost:5264/api/recurringtransactions/3
+
+
+###
+GET http://localhost:5264/api/recurringtransactions?userId=4
+
+
+###
+GET http://localhost:5264/api/recurringtransactions/summary?userId=4
+
+
+
+###
+GET http://localhost:5264/api/categories
+
+  ###
+  GET http://localhost:5264/api/categories?categoryType=Expense
+
+
+  ###
+  GET http://localhost:5264/api/categories?categoryType=Income
+
+
+###
+GET http://localhost:5264/api/categories?isActive=true
+
+
+
+
+  ###
+  GET http://localhost:5264/api/categories?isActive=false
+
+
+###
+GET http://localhost:5264/api/categories?search=Food
+
+
+###
+GET http://localhost:5264/api/categories?page=1&pageSize=1
+
+
+###
+GET http://localhost:5264/api/categories?page=2&pageSize=1
+
+
+###
+GET http://localhost:5264/api/categories/1
+
+
+###
+GET http://localhost:5264/api/categories/999
+
+
+
+###
+POST http://localhost:5264/api/categories
+Content-Type: application/json
+
+{
+  "categoryName": "Transport",
+  "categoryType": "Expense",
+  "icon": "transport",
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/categories
+Content-Type: application/json
+
+{
+  "categoryName": "Transport",
+  "categoryType": "Expense",
+  "icon": "transport",
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/categories
+Content-Type: application/json
+
+{
+  "categoryName": "Test Category",
+  "categoryType": "Something",
+  "icon": "test",
+  "isActive": true
+}
+
+
+
+###
+PUT http://localhost:5264/api/categories/3
+Content-Type: application/json
+
+{
+  "categoryName": "Travel",
+  "categoryType": "Expense",
+  "icon": "travel",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/categories/3
+Content-Type: application/json
+
+{
+  "categoryName": "Food",
+  "categoryType": "Expense",
+  "icon": "food",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/categories/3
+Content-Type: application/json
+
+{
+  "categoryName": "Travel",
+  "categoryType": "Something",
+  "icon": "travel",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/categories/3
+Content-Type: application/json
+
+{
+  "categoryName": "Travel",
+  "categoryType": "Expense",
+  "icon": "travel",
+  "isActive": false
+}
+
+
+###
+DELETE http://localhost:5264/api/categories/3
+
+
+###
+DELETE http://localhost:5264/api/categories/1
+
+
+
+###
+DELETE http://localhost:5264/api/categories/1
+
+
+
+###
+GET http://localhost:5264/api/paymentmodes
+
+
+
+###
+GET http://localhost:5264/api/paymentmodes?isActive=true
+
+
+###
+GET http://localhost:5264/api/paymentmodes?isActive=false
+
+
+###
+GET http://localhost:5264/api/paymentmodes?search=UPI
+
+
+###
+GET http://localhost:5264/api/paymentmodes?page=1&pageSize=2
+
+
+###
+GET http://localhost:5264/api/paymentmodes?page=2&pageSize=2
+
+
+###
+GET http://localhost:5264/api/paymentmodes/1
+
+
+###
+GET http://localhost:5264/api/paymentmodes/999
+
+
+
+###
+POST http://localhost:5264/api/paymentmodes
+Content-Type: application/json
+
+{
+  "modeName": "Credit Card",
+  "description": "Payment through credit card",
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/paymentmodes
+Content-Type: application/json
+
+{
+  "modeName": "Credit Card",
+  "description": "Another credit card payment",
+  "isActive": true
+}
+
+
+
+###
+POST http://localhost:5264/api/paymentmodes
+Content-Type: application/json
+
+{
+  "modeName": "   ",
+  "description": "Invalid test payment mode",
+  "isActive": true
+
+
+
+###
+PUT http://localhost:5264/api/paymentmodes/5
+Content-Type: application/json
+
+{
+  "modeName": "Credit Card",
+  "description": "Updated credit card payment",
+  "isActive": true
+}
+
+
+
+###
+PUT http://localhost:5264/api/paymentmodes/5
+Content-Type: application/json
+
+{
+  "modeName": "UPI",
+  "description": "Trying duplicate name",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/paymentmodes/999
+Content-Type: application/json
+
+{
+  "modeName": "Test Mode",
+  "description": "Invalid ID test",
+  "isActive": true
+}
+
+
+
+###
+PUT http://localhost:5264/api/paymentmodes/5
+Content-Type: application/json
+
+{
+  "modeName": "Credit Card",
+  "description": "Updated credit card payment",
+  "isActive": false
+}
+
+
+###
+GET http://localhost:5264/api/paymentmodes?isActive=false
+
+
+  ###
+  DELETE http://localhost:5264/api/paymentmodes/3
+
+
+###
+GET http://localhost:5264/api/transactions?paymentModeId=1
+
+
+###
+DELETE http://localhost:5264/api/paymentmodes/1
+
+
+###
+GET http://localhost:5264/api/transactions?paymentModeId=4
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 5,
+  "amount": 100,
+  "transactionType": "Need",
+  "description": "Temporary payment mode delete test",
+  "transactionDate": "2026-09-21"
+}
+
+
+###
+DELETE http://localhost:5264/api/paymentmodes/5
+
+
+###
+DELETE http://localhost:5264/api/transactions/7
+
+
+###
+DELETE http://localhost:5264/api/paymentmodes/5
+
+
+###
+GET http://localhost:5264/api/paymentmodes/5
+
+
+###
+GET http://localhost:5264/api/incomesources
+
+
+###
+GET http://localhost:5264/api/incomesources?isActive=true
+
+
+###
+GET http://localhost:5264/api/incomesources?isActive=false
+
+
+###
+GET http://localhost:5264/api/incomesources?search=Salary
+
+###
+GET http://localhost:5264/api/incomesources?page=1&pageSize=2
+
+###
+GET http://localhost:5264/api/incomesources?page=2&pageSize=2
+
+
+###
+GET http://localhost:5264/api/incomesources/1
+
+
+###
+GET http://localhost:5264/api/incomesources/999
+
+
+###
+POST http://localhost:5264/api/incomesources
+Content-Type: application/json
+
+{
+  "sourceName": "Investment",
+  "description": "Income from investments",
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/incomesources
+Content-Type: application/json
+
+{
+  "sourceName": "Investment",
+  "description": "Another investment source",
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/incomesources
+Content-Type: application/json
+
+{
+  "sourceName": "   ",
+  "description": "Invalid test source",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/incomesources/4
+Content-Type: application/json
+
+{
+  "sourceName": "Investment",
+  "description": "Updated investment income",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/incomesources/4
+Content-Type: application/json
+
+{
+  "sourceName": "Salary",
+  "description": "Trying duplicate name",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/incomesources/999
+Content-Type: application/json
+
+{
+  "sourceName": "Test Source",
+  "description": "Invalid ID test",
+  "isActive": true
+}
+
+
+###
+PUT http://localhost:5264/api/incomesources/4
+Content-Type: application/json
+
+{
+  "sourceName": "Investment",
+  "description": "Updated investment income",
+  "isActive": false
+}
+
+
+###
+GET http://localhost:5264/api/incomesources?isActive=false
+
+
+###
+DELETE http://localhost:5264/api/incomesources/1
+
+
+###
+DELETE http://localhost:5264/api/incomesources/4
+
+
+###
+GET http://localhost:5264/api/incomesources/4
+
+
+###
+GET http://localhost:5264/api/paymentmodes?isActive=false
+
+
+###
+POST http://localhost:5264/api/paymentmodes
+Content-Type: application/json
+
+{
+  "modeName": "Test Inactive Mode",
+  "description": "Temporary test payment mode",
+  "isActive": false
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 6,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Inactive payment mode test"
+}
+
+
+###
+DELETE http://localhost:5264/api/paymentmodes/6
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 999,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Invalid payment mode test"
+}
+
+
+  ###
+  POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 999,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Invalid category test"
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 999,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Invalid category test"
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 999,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Invalid user test"
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 999,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Invalid user test"
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "SomethingRandom",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Invalid transaction type test"
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "SomethingRandom",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Invalid transaction type test"
+}
+
+
+
+###
+DELETE http://localhost:5264/api/transactions/10
+
+
+###
+GET http://localhost:5264/api/categories?isActive=false
+
+
+###
+POST http://localhost:5264/api/categories
+Content-Type: application/json
+
+{
+  "categoryName": "Test Inactive Category",
+  "categoryType": "Expense",
+  "icon": "test",
+  "isActive": false
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 4,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Inactive category test"
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 4,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Inactive category test"
+}
+
+
+###
+DELETE http://localhost:5264/api/transactions/11
+
+
+  ###
+  DELETE http://localhost:5264/api/categories/4
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": -100,
+  "transactionDate": "2026-09-19",
+  "description": "Negative amount test"
+}
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 0,
+  "transactionDate": "2026-09-19",
+  "description": "Zero amount test"
+}
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 2,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Category type mismatch test"
+}
+
+
+###
+DELETE http://localhost:5264/api/transactions/12
+
+
+###
+POST http://localhost:5264/api/transactions
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 2,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 100,
+  "transactionDate": "2026-09-19",
+  "description": "Category type mismatch test"
+}
+
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 999,
+  "transactionType": "Need",
+  "amount": 500,
+  "transactionDate": "2026-09-19",
+  "description": "PUT invalid payment mode test"
+}
+###
+GET http://localhost:5264/api/paymentmodes?isActive=false
+
+
+###
+POST http://localhost:5264/api/paymentmodes
+Content-Type: application/json
+
+{
+  "modeName": "Test Inactive PUT Mode",
+  "description": "Temporary PUT validation test",
+  "isActive": false
+}
+
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 7,
+  "transactionType": "Need",
+  "amount": 500,
+  "transactionDate": "2026-09-19",
+  "description": "PUT inactive payment mode test"
+}
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 999,
+  "paymentModeId": 1,
+  "transactionType": "Need",
+  "amount": 500,
+  "transactionDate": "2026-09-19",
+  "description": "PUT invalid category test"
+}
+
+
+###
+GET http://localhost:5264/api/categories?isActive=false
+
+
+###
+POST http://localhost:5264/api/categories
+Content-Type: application/json
+
+{
+  "categoryName": "Test Inactive PUT Category",
+  "categoryType": "Expense",
+  "icon": "test",
+  "isActive": false
+}
+
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 5,
+  "paymentModeId": 1,
+  "transactionType": "Need",
+  "amount": 500,
+  "transactionDate": "2026-09-19",
+  "description": "PUT inactive category test"
+}
+
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 2,
+  "paymentModeId": 1,
+  "transactionType": "Expense",
+  "amount": 500,
+  "transactionDate": "2026-09-19",
+  "description": "PUT income category test"
+}
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "SomethingRandom",
+  "amount": 500,
+  "transactionDate": "2026-09-19",
+  "description": "PUT invalid transaction type test"
+}
+
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Need",
+  "amount": 0,
+  "transactionDate": "2026-09-19",
+  "description": "PUT zero amount test"
+}
+
+
+###
+PUT http://localhost:5264/api/transactions/999
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Need",
+  "amount": 500,
+  "transactionDate": "2026-09-19",
+  "description": "PUT transaction not found test"
+}
+
+
+###
+GET http://localhost:5264/api/transactions/5
+
+
+  ###
+DELETE http://localhost:5264/api/paymentmodes/7
+
+
+###
+DELETE http://localhost:5264/api/categories/5
+
+
+###
+GET http://localhost:5264/api/transactions/5
+
+
+###
+PUT http://localhost:5264/api/transactions/5
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "transactionType": "Need",
+  "amount": 600,
+  "transactionDate": "2026-09-19",
+  "description": "Updated transaction successfully"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+###
+POST http://localhost:5264/api/incomes
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "sourceId": 1,
+  "accountId": 1,
+  "amount": 1000,
+  "incomeDate": "2026-09-21",
+  "description": "Balance logic test income"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+###
+PUT http://localhost:5264/api/incomes/8
+Content-Type: application/json
+
+{
+  "sourceId": 1,
+  "accountId": 1,
+  "amount": 1500,
+  "incomeDate": "2026-09-21",
+  "description": "Balance logic test income updated"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+###
+DELETE http://localhost:5264/api/incomes/8
+
+
+  ###
+  GET http://localhost:5264/api/accounts/1
+
+
+###
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "accountId": 1,
+  "amount": 1000,
+  "expenseDate": "2026-09-21",
+  "description": "Balance logic test expense"
+}
+
+
+  ###
+  GET http://localhost:5264/api/accounts/1
+
+
+  ###
+  PUT http://localhost:5264/api/expenses/6
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "accountId": 1,
+  "amount": 1500,
+  "expenseDate": "2026-09-21",
+  "description": "Balance logic test expense updated"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+###
+DELETE http://localhost:5264/api/expenses/6
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+  ###
+  GET http://localhost:5264/api/accounts/1
+
+  ###
+  GET http://localhost:5264/api/accounts/2
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Inactive destination account test"
+}
+
+
+
+###
+POST http://localhost:5264/api/accounts
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountType": "Wallet",
+  "accountName": "Transfer Test Account",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 0,
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 7,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Balance logic test transfer"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+###
+GET http://localhost:5264/api/accounts/7
+
+
+  ###
+  PUT http://localhost:5264/api/transfers/6
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 7,
+  "amount": 1500,
+  "transferDate": "2026-09-21",
+  "description": "Balance logic test transfer updated"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+###
+GET http://localhost:5264/api/accounts/7
+
+
+  ###
+  DELETE http://localhost:5264/api/transfers/6
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+###
+GET http://localhost:5264/api/accounts/7
+
+
+###
+DELETE http://localhost:5264/api/accounts/7
+
+
+###
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "accountId": 1,
+  "amount": 50000,
+  "expenseDate": "2026-09-21",
+  "description": "Insufficient balance test"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+  ###
+  POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 50000,
+  "transferDate": "2026-09-21",
+  "description": "Insufficient balance transfer test"
+}
+
+
+###
+POST http://localhost:5264/api/accounts
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountType": "Wallet",
+  "accountName": "Insufficient Transfer Test",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 0,
+  "isActive": true
+}
+
+
+  ###
+  POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 8,
+  "amount": 50000,
+  "transferDate": "2026-09-21",
+  "description": "Insufficient balance transfer test"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+###
+GET http://localhost:5264/api/accounts/8
+
+
+  ###
+  DELETE http://localhost:5264/api/accounts/8
+
+
+  ###
+  POST http://localhost:5264/api/incomes
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "sourceId": 1,
+  "accountId": 2,
+  "amount": 1000,
+  "incomeDate": "2026-09-21",
+  "description": "Inactive account income test"
+}
+
+
+
+  ###
+  GET http://localhost:5264/api/accounts/2
+
+###
+PUT http://localhost:5264/api/incomes/4
+Content-Type: application/json
+
+{
+  "sourceId": 1,
+  "accountId": 2,
+  "amount": 25000,
+  "incomeDate": "2026-09-14",
+  "description": "Inactive account update test"
+}
+
+
+###
+GET http://localhost:5264/api/incomes/4
+
+
+###
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "accountId": 2,
+  "amount": 1000,
+  "expenseDate": "2026-09-21",
+  "description": "Inactive account expense test"
+}
+
+
+
+###
+GET http://localhost:5264/api/accounts/2
+
+
+###
+PUT http://localhost:5264/api/expenses/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "accountId": 2,
+  "amount": 450,
+  "expenseDate": "2026-09-17",
+  "description": "Inactive account update test"
+}
+
+
+###
+GET http://localhost:5264/api/expenses/1
+
+
+  ###
+  POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 2,
+  "toAccountId": 1,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Inactive from account test"
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Inactive to account test"
+}
+
+
+  ###
+  POST http://localhost:5264/api/accounts
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountType": "Wallet",
+  "accountName": "Transfer Update Test",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 0,
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 9,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Transfer inactive update test"
+}
+
+
+  ###
+  PUT http://localhost:5264/api/transfers/7
+Content-Type: application/json
+
+{
+  "fromAccountId": 2,
+  "toAccountId": 9,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Inactive from account update test"
+}
+
+
+###
+GET http://localhost:5264/api/transfers/7
+
+
+
+###
+PUT http://localhost:5264/api/transfers/7
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 2,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Inactive to account update test"
+}
+
+
+  ###
+  GET http://localhost:5264/api/transfers/7
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 1,
+  "amount": 1000,
+  "transferDate": "2026-09-21",
+  "description": "Same account transfer test"
+}
+
+
+###
+GET http://localhost:5264/api/accounts/1
+
+
+  ###
+  DELETE http://localhost:5264/api/transfers/7
+
+
+  ###
+  GET http://localhost:5264/api/accounts/1
+
+
+  ###
+  GET http://localhost:5264/api/accounts/9
+
+
+  ###
+  DELETE http://localhost:5264/api/accounts/9
+
+
+###
+DELETE http://localhost:5264/api/accounts/1
+
+###
+GET http://localhost:5264/api/users
+
+
+###
+POST http://localhost:5264/api/accounts
+Content-Type: application/json
+
+{
+  "userId": 7,
+  "accountType": "Wallet",
+  "accountName": "Ownership Test Account",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 1000,
+  "isActive": true
+}
+
+
+  ###
+  POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "accountId": 10,
+  "amount": 100,
+  "expenseDate": "2026-09-22",
+  "description": "Cross-user account ownership test"
+}
+
+
+###
+DELETE http://localhost:5264/api/expenses/7
+
+###
+POST http://localhost:5264/api/expenses
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "categoryId": 1,
+  "paymentModeId": 1,
+  "accountId": 10,
+  "amount": 100,
+  "expenseDate": "2026-09-22",
+  "description": "Cross-user account ownership test"
+}
+
+
+###
+POST http://localhost:5264/api/incomes
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "sourceId": 1,
+  "accountId": 10,
+  "amount": 100,
+  "incomeDate": "2026-09-22",
+  "description": "Cross-user account ownership test"
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 10,
+  "toAccountId": 1,
+  "amount": 100,
+  "transferDate": "2026-09-22",
+  "description": "Cross-user from account ownership test"
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 10,
+  "amount": 100,
+  "transferDate": "2026-09-22",
+  "description": "Cross-user to account ownership test"
+}
+
+
+###
+PUT http://localhost:5264/api/expenses/1
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "accountId": 10,
+  "paymentModeId": 1,
+  "amount": 100,
+  "expenseDate": "2026-09-22",
+  "description": "Cross-user account ownership update test"
+}
+
+
+###
+PUT http://localhost:5264/api/incomes/4
+Content-Type: application/json
+
+{
+  "accountId": 10,
+  "sourceId": 1,
+  "amount": 25000,
+  "incomeDate": "2026-09-14",
+  "description": "Cross-user account ownership update test"
+}
+
+
+
+###
+GET http://localhost:5264/api/transfers
+
+
+###
+POST http://localhost:5264/api/accounts
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "accountType": "Wallet",
+  "accountName": "Transfer Ownership Test Account",
+  "bankName": null,
+  "accountNumber": null,
+  "balance": 0,
+  "isActive": true
+}
+
+
+###
+POST http://localhost:5264/api/transfers
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "fromAccountId": 1,
+  "toAccountId": 11,
+  "amount": 100,
+  "transferDate": "2026-09-22",
+  "description": "Temporary transfer ownership test"
+}
+
+
+###
+PUT http://localhost:5264/api/transfers/8
+Content-Type: application/json
+
+{
+  "fromAccountId": 10,
+  "toAccountId": 11,
+  "amount": 100,
+  "transferDate": "2026-09-22",
+  "description": "Cross-user from account update test"
+}
+
+
+###
+PUT http://localhost:5264/api/transfers/8
+Content-Type: application/json
+
+{
+  "fromAccountId": 1,
+  "toAccountId": 10,
+  "amount": 100,
+  "transferDate": "2026-09-22",
+  "description": "Cross-user to account update test"
+}
+
+
+  ###
+  DELETE http://localhost:5264/api/transfers/8
+
+
+###
+DELETE http://localhost:5264/api/accounts/11
+
+###
+DELETE http://localhost:5264/api/accounts/10
