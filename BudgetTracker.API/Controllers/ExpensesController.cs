@@ -131,14 +131,25 @@ public class ExpensesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateExpense(CreateExpenseDto dto)
     {
-        var categoryExists = await _context.Categories
-            .AnyAsync(c => c.CategoryId == dto.CategoryId);
+        var category = await _context.Categories
+            .FirstOrDefaultAsync(c => c.CategoryId == dto.CategoryId);
 
-        if (!categoryExists)
+        if (category == null)
         {
             return BadRequest(new
             {
                 message = "Category not found."
+            });
+        }
+
+        // 5. A category used for an expense must be an Expense category.
+        //    Reject Income categories here so an expense can never reference
+        //    an income category.
+        if (category.CategoryType != "Expense")
+        {
+            return BadRequest(new
+            {
+                message = "Expense transactions can only use Expense categories."
             });
         }
 
@@ -232,14 +243,25 @@ public class ExpensesController : ControllerBase
             });
         }
 
-        var categoryExists = await _context.Categories
-            .AnyAsync(c => c.CategoryId == dto.CategoryId);
+        var category = await _context.Categories
+            .FirstOrDefaultAsync(c => c.CategoryId == dto.CategoryId);
 
-        if (!categoryExists)
+        if (category == null)
         {
             return BadRequest(new
             {
                 message = "Category not found."
+            });
+        }
+
+        // 5. A category used for an expense must be an Expense category.
+        //    Reject Income categories here so an expense can never reference
+        //    an income category.
+        if (category.CategoryType != "Expense")
+        {
+            return BadRequest(new
+            {
+                message = "Expense transactions can only use Expense categories."
             });
         }
 

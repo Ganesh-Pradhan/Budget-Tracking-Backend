@@ -185,12 +185,25 @@ public class TransactionsController : ControllerBase
             });
         }
 
-        // 5. Check Category type
-        if (category.CategoryType != "Expense")
+        // 5. Check Category type against the requested transaction type.
+        //    Expenses must use Expense categories; income transactions must
+        //    use Income categories. Reject the other direction so a
+        //    transaction can never mix a category from the wrong type.
+        if (dto.TransactionType == "Expense" &&
+            category.CategoryType != "Expense")
         {
             return BadRequest(new
             {
                 message = "Expense transactions can only use Expense categories."
+            });
+        }
+
+        if (dto.TransactionType == "Income" &&
+            category.CategoryType != "Income")
+        {
+            return BadRequest(new
+            {
+                message = "Income transactions can only use Income categories."
             });
         }
 
@@ -295,12 +308,25 @@ public class TransactionsController : ControllerBase
             });
         }
 
-        // 6. Check Category type
-        if (category.CategoryType != "Expense")
+        // 6. Check Category type against the requested transaction type.
+        //    Expenses must use Expense categories; income transactions must
+        //    use Income categories. Reject the other direction so a
+        //    transaction can never mix a category from the wrong type.
+        if (dto.TransactionType == "Expense" &&
+            category.CategoryType != "Expense")
         {
             return BadRequest(new
             {
                 message = "Expense transactions can only use Expense categories."
+            });
+        }
+
+        if (dto.TransactionType == "Income" &&
+            category.CategoryType != "Income")
+        {
+            return BadRequest(new
+            {
+                message = "Income transactions can only use Income categories."
             });
         }
 
