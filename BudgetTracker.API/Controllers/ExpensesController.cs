@@ -153,14 +153,22 @@ public class ExpensesController : ControllerBase
             });
         }
 
-        var paymentModeExists = await _context.PaymentModes
-            .AnyAsync(p => p.PaymentModeId == dto.PaymentModeId);
+        var paymentMode = await _context.PaymentModes
+            .FirstOrDefaultAsync(p => p.PaymentModeId == dto.PaymentModeId);
 
-        if (!paymentModeExists)
+        if (paymentMode == null)
         {
             return BadRequest(new
             {
                 message = "Payment mode not found."
+            });
+        }
+
+        if (!paymentMode.IsActive)
+        {
+            return BadRequest(new
+            {
+                message = "Payment mode is inactive and cannot be used."
             });
         }
 
@@ -265,14 +273,22 @@ public class ExpensesController : ControllerBase
             });
         }
 
-        var paymentModeExists = await _context.PaymentModes
-            .AnyAsync(p => p.PaymentModeId == dto.PaymentModeId);
+        var paymentMode = await _context.PaymentModes
+            .FirstOrDefaultAsync(p => p.PaymentModeId == dto.PaymentModeId);
 
-        if (!paymentModeExists)
+        if (paymentMode == null)
         {
             return BadRequest(new
             {
                 message = "Payment mode not found."
+            });
+        }
+
+        if (!paymentMode.IsActive)
+        {
+            return BadRequest(new
+            {
+                message = "Payment mode is inactive and cannot be used."
             });
         }
 
