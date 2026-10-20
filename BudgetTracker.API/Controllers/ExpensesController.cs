@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExpensesController : ControllerBase
+[Authorize]
+public class ExpensesController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -20,7 +21,6 @@ public class ExpensesController : ControllerBase
     // GET: api/expenses
     [HttpGet]
     public async Task<IActionResult> GetExpenses(
-     [FromQuery] int? userId,
      [FromQuery] string? search,
      [FromQuery] int? categoryId,
      [FromQuery] int? paymentModeId,
@@ -29,6 +29,9 @@ public class ExpensesController : ControllerBase
      [FromQuery] int page = 1,
      [FromQuery] int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -38,15 +41,12 @@ public class ExpensesController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
+        var userId = CurrentUserId.Value;
         var query = _context.Expenses
             .Include(e => e.Category)
             .Include(e => e.PaymentMode)
+            .Where(e => e.UserId == userId)
             .AsQueryable();
-
-        if (userId.HasValue)
-        {
-            query = query.Where(x => x.UserId == userId.Value);
-        }
 
         // Search by description
         if (!string.IsNullOrWhiteSpace(search))
@@ -111,10 +111,15 @@ public class ExpensesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetExpense(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var expense = await _context.Expenses
             .Include(e => e.Category)
             .Include(e => e.PaymentMode)
-            .FirstOrDefaultAsync(e => e.ExpenseId == id);
+            .FirstOrDefaultAsync(e =>
+                e.ExpenseId == id && e.UserId == userId);
 
         if (expense == null)
         {
@@ -131,6 +136,10 @@ public class ExpensesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateExpense(CreateExpenseDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var category = await _context.Categories
             .FirstOrDefaultAsync(c => c.CategoryId == dto.CategoryId);
 
@@ -173,7 +182,9 @@ public class ExpensesController : ControllerBase
         }
 
         var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.AccountId);
+            .FirstOrDefaultAsync(a =>
+                a.AccountId == dto.AccountId &&
+                a.UserId == userId);
 
         if (account == null)
         {
@@ -191,15 +202,6 @@ public class ExpensesController : ControllerBase
             });
         }
 
-        // Check account ownership
-        if (account.UserId != dto.UserId)
-        {
-            return BadRequest(new
-            {
-                message = "Account does not belong to the user."
-            });
-        }
-
         if (account.Balance < dto.Amount)
         {
             return BadRequest(new
@@ -210,7 +212,7 @@ public class ExpensesController : ControllerBase
 
         var expense = new Expense
         {
-            UserId = dto.UserId,
+            UserId = userId,
             AccountId = dto.AccountId,
             CategoryId = dto.CategoryId,
             PaymentModeId = dto.PaymentModeId,
@@ -240,8 +242,13 @@ public class ExpensesController : ControllerBase
         int id,
         UpdateExpenseDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var expense = await _context.Expenses
-            .FirstOrDefaultAsync(e => e.ExpenseId == id);
+            .FirstOrDefaultAsync(e =>
+                e.ExpenseId == id && e.UserId == userId);
 
         if (expense == null)
         {
@@ -293,7 +300,9 @@ public class ExpensesController : ControllerBase
         }
 
         var newAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.AccountId);
+            .FirstOrDefaultAsync(a =>
+                a.AccountId == dto.AccountId &&
+                a.UserId == userId);
 
         if (newAccount == null)
         {
@@ -308,14 +317,6 @@ public class ExpensesController : ControllerBase
             return BadRequest(new
             {
                 message = "Account is inactive."
-            });
-        }
-
-        if (newAccount.UserId != expense.UserId)
-        {
-            return BadRequest(new
-            {
-                message = "Account does not belong to the user."
             });
         }
 
@@ -361,8 +362,13 @@ public class ExpensesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var expense = await _context.Expenses
-            .FirstOrDefaultAsync(e => e.ExpenseId == id);
+            .FirstOrDefaultAsync(e =>
+                e.ExpenseId == id && e.UserId == userId);
 
         if (expense == null)
         {
@@ -401,7 +407,12 @@ public class ExpensesController : ControllerBase
     [HttpGet("summary/total")]
     public async Task<IActionResult> GetTotalExpenses()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalExpenses = await _context.Expenses
+            .Where(e => e.UserId == userId)
             .SumAsync(e => e.Amount);
 
         return Ok(new { totalExpenses });
@@ -413,8 +424,13 @@ public class ExpensesController : ControllerBase
         [FromQuery] int year,
         [FromQuery] int month)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalExpenses = await _context.Expenses
             .Where(e =>
+                e.UserId == userId &&
                 e.ExpenseDate.Year == year &&
                 e.ExpenseDate.Month == month)
             .SumAsync(e => e.Amount);
@@ -431,8 +447,13 @@ public class ExpensesController : ControllerBase
     [HttpGet("summary/by-category")]
     public async Task<IActionResult> GetExpensesByCategory()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var expensesByCategory = await _context.Expenses
             .Include(e => e.Category)
+            .Where(e => e.UserId == userId)
             .GroupBy(e => new
             {
                 e.CategoryId,

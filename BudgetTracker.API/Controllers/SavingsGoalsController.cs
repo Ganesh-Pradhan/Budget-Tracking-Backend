@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SavingsGoalsController : ControllerBase
+[Authorize]
+public class SavingsGoalsController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -20,11 +21,13 @@ public class SavingsGoalsController : ControllerBase
     // GET: api/SavingsGoals
     [HttpGet]
     public async Task<IActionResult> GetSavingsGoals(
-        [FromQuery] int? userId,
         [FromQuery] string? search,
         int page = 1,
         int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -34,14 +37,10 @@ public class SavingsGoalsController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
+        var userId = CurrentUserId.Value;
         var query = _context.SavingsGoals
+            .Where(g => g.UserId == userId)
             .AsQueryable();
-
-        if (userId.HasValue)
-        {
-            query = query.Where(g =>
-                g.UserId == userId.Value);
-        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -76,9 +75,13 @@ public class SavingsGoalsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSavingsGoal(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var goal = await _context.SavingsGoals
             .FirstOrDefaultAsync(g =>
-                g.GoalId == id);
+                g.GoalId == id && g.UserId == userId);
 
         if (goal == null)
         {
@@ -96,16 +99,10 @@ public class SavingsGoalsController : ControllerBase
     public async Task<IActionResult> CreateSavingsGoal(
         CreateSavingsGoalDto dto)
     {
-        var userExists = await _context.Users
-            .AnyAsync(u => u.UserId == dto.UserId);
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (!userExists)
-        {
-            return BadRequest(new
-            {
-                message = "User not found."
-            });
-        }
+        var userId = CurrentUserId.Value;
 
         if (dto.SavedAmount > dto.TargetAmount)
         {
@@ -117,7 +114,7 @@ public class SavingsGoalsController : ControllerBase
 
         var goal = new SavingsGoal
         {
-            UserId = dto.UserId,
+            UserId = userId,
             GoalName = dto.GoalName,
             TargetAmount = dto.TargetAmount,
             SavedAmount = dto.SavedAmount,
@@ -142,9 +139,13 @@ public class SavingsGoalsController : ControllerBase
         int id,
         UpdateSavingsGoalDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var goal = await _context.SavingsGoals
             .FirstOrDefaultAsync(g =>
-                g.GoalId == id);
+                g.GoalId == id && g.UserId == userId);
 
         if (goal == null)
         {
@@ -177,9 +178,13 @@ public class SavingsGoalsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSavingsGoal(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var goal = await _context.SavingsGoals
             .FirstOrDefaultAsync(g =>
-                g.GoalId == id);
+                g.GoalId == id && g.UserId == userId);
 
         if (goal == null)
         {
@@ -203,7 +208,12 @@ public class SavingsGoalsController : ControllerBase
     [HttpGet("summary/total-target")]
     public async Task<IActionResult> GetTotalTargetAmount()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalTarget = await _context.SavingsGoals
+            .Where(g => g.UserId == userId)
             .SumAsync(g => g.TargetAmount);
 
         return Ok(new
@@ -216,7 +226,12 @@ public class SavingsGoalsController : ControllerBase
     [HttpGet("summary/total-saved")]
     public async Task<IActionResult> GetTotalSavedAmount()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalSaved = await _context.SavingsGoals
+            .Where(g => g.UserId == userId)
             .SumAsync(g => g.SavedAmount);
 
         return Ok(new
@@ -229,7 +244,12 @@ public class SavingsGoalsController : ControllerBase
     [HttpGet("summary/progress")]
     public async Task<IActionResult> GetSavingsGoalProgress()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var goals = await _context.SavingsGoals
+            .Where(g => g.UserId == userId)
             .Select(g => new
             {
                 goalId = g.GoalId,

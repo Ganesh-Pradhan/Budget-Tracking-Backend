@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/incomes")]
-public class IncomesController : ControllerBase
+[Authorize]
+public class IncomesController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -20,14 +21,16 @@ public class IncomesController : ControllerBase
     // GET: api/incomes
     [HttpGet]
     public async Task<IActionResult> GetIncomes(
-      [FromQuery] int? userId,
-     [FromQuery] string? search,
+      [FromQuery] string? search,
       [FromQuery] int? sourceId,
       [FromQuery] int? year,
       [FromQuery] int? month,
       [FromQuery] int page = 1,
       [FromQuery] int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -37,14 +40,11 @@ public class IncomesController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
+        var userId = CurrentUserId.Value;
         var query = _context.Income
             .Include(i => i.Source)
+            .Where(i => i.UserId == userId)
             .AsQueryable();
-
-        if (userId.HasValue)
-        {
-            query = query.Where(x => x.UserId == userId.Value);
-        }
 
         // Search by description
         if (!string.IsNullOrWhiteSpace(search))
@@ -102,9 +102,13 @@ public class IncomesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetIncome(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var income = await _context.Income
             .Include(i => i.Source)
-            .FirstOrDefaultAsync(i => i.IncomeId == id);
+            .FirstOrDefaultAsync(i => i.IncomeId == id && i.UserId == userId);
 
         if (income == null)
         {
@@ -121,6 +125,10 @@ public class IncomesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateIncome(CreateIncomeDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var sourceExists = await _context.IncomeSources
             .AnyAsync(s => s.SourceId == dto.SourceId);
 
@@ -133,7 +141,9 @@ public class IncomesController : ControllerBase
         }
 
         var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.AccountId);
+            .FirstOrDefaultAsync(a =>
+                a.AccountId == dto.AccountId &&
+                a.UserId == userId);
 
         if (account == null)
         {
@@ -151,18 +161,9 @@ public class IncomesController : ControllerBase
             });
         }
 
-        // Check account ownership
-        if (account.UserId != dto.UserId)
-        {
-            return BadRequest(new
-            {
-                message = "Account does not belong to the user."
-            });
-        }
-
         var income = new Income
         {
-            UserId = dto.UserId,
+            UserId = userId,
             AccountId = dto.AccountId,
             SourceId = dto.SourceId,
             Amount = dto.Amount,
@@ -190,8 +191,13 @@ public class IncomesController : ControllerBase
       int id,
       UpdateIncomeDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var income = await _context.Income
-            .FirstOrDefaultAsync(i => i.IncomeId == id);
+            .FirstOrDefaultAsync(i =>
+                i.IncomeId == id && i.UserId == userId);
 
         if (income == null)
         {
@@ -273,8 +279,12 @@ public class IncomesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteIncome(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var income = await _context.Income
-            .FirstOrDefaultAsync(i => i.IncomeId == id);
+            .FirstOrDefaultAsync(i => i.IncomeId == id && i.UserId == userId);
 
         if (income == null)
         {
@@ -313,7 +323,12 @@ public class IncomesController : ControllerBase
     [HttpGet("summary/total")]
     public async Task<IActionResult> GetTotalIncome()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalIncome = await _context.Income
+            .Where(i => i.UserId == userId)
             .SumAsync(i => i.Amount);
 
         return Ok(new
@@ -328,8 +343,13 @@ public class IncomesController : ControllerBase
         [FromQuery] int year,
         [FromQuery] int month)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalIncome = await _context.Income
             .Where(i =>
+                i.UserId == userId &&
                 i.IncomeDate.Year == year &&
                 i.IncomeDate.Month == month)
             .SumAsync(i => i.Amount);
@@ -346,7 +366,12 @@ public class IncomesController : ControllerBase
     [HttpGet("summary/by-source")]
     public async Task<IActionResult> GetIncomeBySource()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var incomeBySource = await _context.Income
+            .Where(i => i.UserId == userId)
             .Include(i => i.Source)
             .GroupBy(i => new
             {

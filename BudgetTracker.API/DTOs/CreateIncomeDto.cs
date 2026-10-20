@@ -5,9 +5,6 @@ namespace BudgetTracker.API.DTOs;
 public class CreateIncomeDto
 {
     [Required]
-    public int UserId { get; set; }
-
-    [Required]
     public int AccountId { get; set; }
 
     [Required]

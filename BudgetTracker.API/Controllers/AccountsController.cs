@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AccountsController : ControllerBase
+[Authorize]
+public class AccountsController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -19,13 +20,15 @@ public class AccountsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAccounts(
-        [FromQuery] int? userId,
         [FromQuery] string? accountType,
         [FromQuery] string? search,
         [FromQuery] bool? isActive,
         int page = 1,
         int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -35,10 +38,11 @@ public class AccountsController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
-        var query = _context.Accounts.AsQueryable();
+        var userId = CurrentUserId.Value;
+        var query = _context.Accounts.Where(a => a.UserId == userId);
 
-        if (userId.HasValue)
-            query = query.Where(a => a.UserId == userId.Value);
+        if (!string.IsNullOrWhiteSpace(accountType))
+            query = query.Where(a => a.AccountType == accountType);
 
         if (!string.IsNullOrWhiteSpace(accountType))
             query = query.Where(a => a.AccountType == accountType);
@@ -76,8 +80,12 @@ public class AccountsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAccount(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == id);
+            .FirstOrDefaultAsync(a => a.AccountId == id && a.UserId == userId);
 
         if (account == null)
             return NotFound(new
@@ -92,8 +100,13 @@ public class AccountsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAccount(CreateAccountDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
+
         var userExists = await _context.Users
-            .AnyAsync(u => u.UserId == dto.UserId);
+            .AnyAsync(u => u.UserId == userId);
 
         if (!userExists)
             return BadRequest(new
@@ -103,7 +116,7 @@ public class AccountsController : ControllerBase
 
         var account = new Account
         {
-            UserId = dto.UserId,
+            UserId = userId,
             AccountType = dto.AccountType,
             AccountName = dto.AccountName,
             BankName = dto.BankName,
@@ -129,8 +142,12 @@ public class AccountsController : ControllerBase
     int id,
     UpdateAccountDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == id);
+            .FirstOrDefaultAsync(a => a.AccountId == id && a.UserId == userId);
 
         if (account == null)
             return NotFound(new
@@ -154,8 +171,12 @@ public class AccountsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAccount(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == id);
+            .FirstOrDefaultAsync(a => a.AccountId == id && a.UserId == userId);
 
         if (account == null)
             return NotFound(new
@@ -181,13 +202,13 @@ public class AccountsController : ControllerBase
 
 
     [HttpGet("summary")]
-    public async Task<IActionResult> GetAccountSummary(
-    [FromQuery] int? userId)
+    public async Task<IActionResult> GetAccountSummary()
     {
-        var query = _context.Accounts.AsQueryable();
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (userId.HasValue)
-            query = query.Where(a => a.UserId == userId.Value);
+        var userId = CurrentUserId.Value;
+        var query = _context.Accounts.Where(a => a.UserId == userId);
 
         var totalAccounts = await query.CountAsync();
 

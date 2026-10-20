@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RecurringTransactionsController : ControllerBase
+[Authorize]
+public class RecurringTransactionsController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -19,7 +20,6 @@ public class RecurringTransactionsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetRecurringTransactions(
-        [FromQuery] int? userId,
         [FromQuery] int? accountId,
         [FromQuery] string? transactionType,
         [FromQuery] string? frequency,
@@ -28,6 +28,9 @@ public class RecurringTransactionsController : ControllerBase
         int page = 1,
         int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -37,10 +40,10 @@ public class RecurringTransactionsController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
-        var query = _context.RecurringTransactions.AsQueryable();
-
-        if (userId.HasValue)
-            query = query.Where(r => r.UserId == userId.Value);
+        var userId = CurrentUserId.Value;
+        var query = _context.RecurringTransactions
+            .Where(r => r.UserId == userId)
+            .AsQueryable();
 
         if (accountId.HasValue)
             query = query.Where(r => r.AccountId == accountId.Value);
@@ -90,9 +93,13 @@ public class RecurringTransactionsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRecurringTransaction(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var recurringTransaction = await _context.RecurringTransactions
             .FirstOrDefaultAsync(r =>
-                r.RecurringTransactionId == id);
+                r.RecurringTransactionId == id && r.UserId == userId);
 
         if (recurringTransaction == null)
             return NotFound(new
@@ -107,17 +114,15 @@ public class RecurringTransactionsController : ControllerBase
     public async Task<IActionResult> CreateRecurringTransaction(
     CreateRecurringTransactionDto dto)
     {
-        var userExists = await _context.Users
-            .AnyAsync(u => u.UserId == dto.UserId);
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (!userExists)
-            return BadRequest(new
-            {
-                message = "User not found."
-            });
+        var userId = CurrentUserId.Value;
 
         var account = await _context.Accounts
-     .FirstOrDefaultAsync(a => a.AccountId == dto.AccountId);
+     .FirstOrDefaultAsync(a =>
+         a.AccountId == dto.AccountId &&
+         a.UserId == userId);
 
         if (account == null)
         {
@@ -168,7 +173,7 @@ public class RecurringTransactionsController : ControllerBase
 
         var recurringTransaction = new RecurringTransaction
         {
-            UserId = dto.UserId,
+            UserId = userId,
             AccountId = dto.AccountId,
             CategoryId = dto.CategoryId,
             PaymentModeId = dto.PaymentModeId,
@@ -200,9 +205,13 @@ public class RecurringTransactionsController : ControllerBase
     int id,
     UpdateRecurringTransactionDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var recurringTransaction = await _context.RecurringTransactions
             .FirstOrDefaultAsync(r =>
-                r.RecurringTransactionId == id);
+                r.RecurringTransactionId == id && r.UserId == userId);
 
         if (recurringTransaction == null)
             return NotFound(new
@@ -242,9 +251,13 @@ public class RecurringTransactionsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRecurringTransaction(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var recurringTransaction = await _context.RecurringTransactions
             .FirstOrDefaultAsync(r =>
-                r.RecurringTransactionId == id);
+                r.RecurringTransactionId == id && r.UserId == userId);
 
         if (recurringTransaction == null)
             return NotFound(new
@@ -264,13 +277,14 @@ public class RecurringTransactionsController : ControllerBase
 
 
     [HttpGet("summary")]
-    public async Task<IActionResult> GetRecurringTransactionSummary(
-    [FromQuery] int? userId)
+    public async Task<IActionResult> GetRecurringTransactionSummary()
     {
-        var query = _context.RecurringTransactions.AsQueryable();
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (userId.HasValue)
-            query = query.Where(r => r.UserId == userId.Value);
+        var userId = CurrentUserId.Value;
+        var query = _context.RecurringTransactions
+            .Where(r => r.UserId == userId);
 
         var totalRecurringTransactions = await query.CountAsync();
 

@@ -5,9 +5,6 @@ namespace BudgetTracker.API.DTOs;
 public class CreateSavingsGoalDto
 {
     [Required]
-    public int UserId { get; set; }
-
-    [Required]
     [MaxLength(100)]
     public string GoalName { get; set; } = string.Empty;
 

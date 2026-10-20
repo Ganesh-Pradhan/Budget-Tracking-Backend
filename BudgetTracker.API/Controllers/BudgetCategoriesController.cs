@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BudgetCategoriesController : ControllerBase
+[Authorize]
+public class BudgetCategoriesController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -25,6 +26,9 @@ public class BudgetCategoriesController : ControllerBase
         int page = 1,
         int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -34,9 +38,11 @@ public class BudgetCategoriesController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
+        var userId = CurrentUserId.Value;
         var query = _context.BudgetCategories
             .Include(bc => bc.Category)
             .Include(bc => bc.Budget)
+            .Where(bc => bc.Budget!.UserId == userId)
             .AsQueryable();
 
         if (budgetId.HasValue)
@@ -78,11 +84,16 @@ public class BudgetCategoriesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetBudgetCategory(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budgetCategory = await _context.BudgetCategories
             .Include(bc => bc.Category)
             .Include(bc => bc.Budget)
             .FirstOrDefaultAsync(bc =>
-                bc.BudgetCategoryId == id);
+                bc.BudgetCategoryId == id &&
+                bc.Budget!.UserId == userId);
 
         if (budgetCategory == null)
         {
@@ -100,8 +111,14 @@ public class BudgetCategoriesController : ControllerBase
     public async Task<IActionResult> CreateBudgetCategory(
         CreateBudgetCategoryDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budgetExists = await _context.Budgets
-            .AnyAsync(b => b.BudgetId == dto.BudgetId);
+            .AnyAsync(b =>
+                b.BudgetId == dto.BudgetId &&
+                b.UserId == userId);
 
         if (!budgetExists)
         {
@@ -160,9 +177,14 @@ public class BudgetCategoriesController : ControllerBase
         int id,
         UpdateBudgetCategoryDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budgetCategory = await _context.BudgetCategories
             .FirstOrDefaultAsync(bc =>
-                bc.BudgetCategoryId == id);
+                bc.BudgetCategoryId == id &&
+                bc.Budget!.UserId == userId);
 
         if (budgetCategory == null)
         {
@@ -209,9 +231,14 @@ public class BudgetCategoriesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBudgetCategory(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budgetCategory = await _context.BudgetCategories
             .FirstOrDefaultAsync(bc =>
-                bc.BudgetCategoryId == id);
+                bc.BudgetCategoryId == id &&
+                bc.Budget!.UserId == userId);
 
         if (budgetCategory == null)
         {
@@ -235,7 +262,12 @@ public class BudgetCategoriesController : ControllerBase
     [HttpGet("summary/total")]
     public async Task<IActionResult> GetTotalAllocatedAmount()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalAllocated = await _context.BudgetCategories
+            .Where(bc => bc.Budget!.UserId == userId)
             .SumAsync(bc => bc.AllocatedAmount);
 
         return Ok(new
@@ -247,8 +279,13 @@ public class BudgetCategoriesController : ControllerBase
     [HttpGet("summary/by-category")]
     public async Task<IActionResult> GetAllocationByCategory()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var allocationByCategory = await _context.BudgetCategories
             .Include(bc => bc.Category)
+            .Where(bc => bc.Budget!.UserId == userId)
             .GroupBy(bc => new
             {
                 bc.CategoryId,
@@ -272,8 +309,14 @@ public class BudgetCategoriesController : ControllerBase
     public async Task<IActionResult> GetBudgetVsAllocated(
     [FromQuery] int budgetId)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budget = await _context.Budgets
-            .FirstOrDefaultAsync(b => b.BudgetId == budgetId);
+            .FirstOrDefaultAsync(b =>
+                b.BudgetId == budgetId &&
+                b.UserId == userId);
 
         if (budget == null)
         {

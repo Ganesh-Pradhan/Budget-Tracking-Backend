@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TransactionsController : ControllerBase
+[Authorize]
+public class TransactionsController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -19,7 +20,6 @@ public class TransactionsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetTransactions(
-     [FromQuery] int? userId,
      [FromQuery] string? search,
      [FromQuery] int? paymentModeId,
      [FromQuery] string? transactionType,
@@ -28,33 +28,30 @@ public class TransactionsController : ControllerBase
      [FromQuery] int page = 1,
      [FromQuery] int pageSize = 5)
     {
-        // Prevent invalid page numbers
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
         {
             page = 1;
         }
 
-        // Prevent invalid page sizes
         if (pageSize < 1)
         {
             pageSize = 5;
         }
 
-        // Limit page size for performance
         if (pageSize > 100)
         {
             pageSize = 100;
         }
 
+        var userId = CurrentUserId.Value;
         var query = _context.Transactions
             .Include(t => t.Category)
             .Include(t => t.PaymentMode)
+            .Where(t => t.UserId == userId)
             .AsQueryable();
-
-        if (userId.HasValue)
-        {
-            query = query.Where(x => x.UserId == userId.Value);
-        }
 
         // Search by Description
         if (!string.IsNullOrWhiteSpace(search))
@@ -122,11 +119,15 @@ public class TransactionsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTransactionById(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var transaction = await _context.Transactions
             .Include(t => t.User)
             .Include(t => t.Category)
             .Include(t => t.PaymentMode)
-            .FirstOrDefaultAsync(t => t.TransactionId == id);
+            .FirstOrDefaultAsync(t => t.TransactionId == id && t.UserId == userId);
 
         if (transaction == null)
         {
@@ -143,6 +144,11 @@ public class TransactionsController : ControllerBase
     public async Task<IActionResult> CreateTransaction(
       CreateTransactionDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
+
         // 1. Check Payment Mode exists
         var paymentMode = await _context.PaymentModes
             .FirstOrDefaultAsync(p => p.PaymentModeId == dto.PaymentModeId);
@@ -209,7 +215,7 @@ public class TransactionsController : ControllerBase
 
         // 6. Check User exists
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.UserId == dto.UserId);
+            .FirstOrDefaultAsync(u => u.UserId == userId);
 
         if (user == null)
         {
@@ -232,7 +238,7 @@ public class TransactionsController : ControllerBase
         // 8. Create Transaction
         var transaction = new Transaction
         {
-            UserId = dto.UserId,
+            UserId = userId,
             CategoryId = dto.CategoryId,
             PaymentModeId = dto.PaymentModeId,
             TransactionType = dto.TransactionType,
@@ -254,9 +260,13 @@ public class TransactionsController : ControllerBase
         int id,
         UpdateTransactionDto dto)
     {
-        // 1. Check transaction exists
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
+        // 1. Check transaction exists and belongs to the user
         var transaction = await _context.Transactions
-            .FirstOrDefaultAsync(t => t.TransactionId == id);
+            .FirstOrDefaultAsync(t => t.TransactionId == id && t.UserId == userId);
 
         if (transaction == null)
         {
@@ -357,8 +367,12 @@ public class TransactionsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTransaction(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var transaction = await _context.Transactions
-            .FirstOrDefaultAsync(t => t.TransactionId == id);
+            .FirstOrDefaultAsync(t => t.TransactionId == id && t.UserId == userId);
 
         if (transaction == null)
         {

@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BudgetsController : ControllerBase
+[Authorize]
+public class BudgetsController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -21,12 +22,14 @@ public class BudgetsController : ControllerBase
     // GET: api/budgets
     [HttpGet]
     public async Task<IActionResult> GetBudgets(
-        [FromQuery] int? userId,
         [FromQuery] int? year,
         [FromQuery] int? month,
         int page = 1,
         int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -36,14 +39,10 @@ public class BudgetsController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
+        var userId = CurrentUserId.Value;
         var query = _context.Budgets
+            .Where(b => b.UserId == userId)
             .AsQueryable();
-
-        if (userId.HasValue)
-        {
-            query = query.Where(b =>
-                b.UserId == userId.Value);
-        }
 
         if (year.HasValue)
         {
@@ -85,8 +84,13 @@ public class BudgetsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetBudget(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budget = await _context.Budgets
-            .FirstOrDefaultAsync(b => b.BudgetId == id);
+            .FirstOrDefaultAsync(b =>
+                b.BudgetId == id && b.UserId == userId);
 
         if (budget == null)
         {
@@ -100,17 +104,14 @@ public class BudgetsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateBudget(CreateBudgetDto dto)
     {
-        var userExists = await _context.Users
-            .AnyAsync(u => u.UserId == dto.UserId);
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (!userExists)
-        {
-            return BadRequest(new { message = "User not found." });
-        }
+        var userId = CurrentUserId.Value;
 
         var existingBudget = await _context.Budgets
             .AnyAsync(b =>
-                b.UserId == dto.UserId &&
+                b.UserId == userId &&
                 b.BudgetYear == dto.BudgetYear &&
                 b.BudgetMonth == dto.BudgetMonth);
 
@@ -124,7 +125,7 @@ public class BudgetsController : ControllerBase
 
         var budget = new Budget
         {
-            UserId = dto.UserId,
+            UserId = userId,
             BudgetYear = dto.BudgetYear,
             BudgetMonth = dto.BudgetMonth,
             BudgetAmount = dto.BudgetAmount,
@@ -147,8 +148,13 @@ public class BudgetsController : ControllerBase
         int id,
         UpdateBudgetDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budget = await _context.Budgets
-            .FirstOrDefaultAsync(b => b.BudgetId == id);
+            .FirstOrDefaultAsync(b =>
+                b.BudgetId == id && b.UserId == userId);
 
         if (budget == null)
         {
@@ -183,8 +189,13 @@ public class BudgetsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBudget(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budget = await _context.Budgets
-            .FirstOrDefaultAsync(b => b.BudgetId == id);
+            .FirstOrDefaultAsync(b =>
+                b.BudgetId == id && b.UserId == userId);
 
         if (budget == null)
         {
@@ -206,7 +217,12 @@ public class BudgetsController : ControllerBase
     [HttpGet("summary/total")]
     public async Task<IActionResult> GetTotalBudget()
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var totalBudget = await _context.Budgets
+            .Where(b => b.UserId == userId)
             .SumAsync(b => b.BudgetAmount);
 
         return Ok(new
@@ -219,10 +235,13 @@ public class BudgetsController : ControllerBase
     // GET: api/budgets/summary/monthly
     [HttpGet("summary/monthly")]
     public async Task<IActionResult> GetMonthlyBudget(
-        [FromQuery] int userId,
         [FromQuery] int year,
         [FromQuery] int month)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budget = await _context.Budgets
             .FirstOrDefaultAsync(b =>
                 b.UserId == userId &&
@@ -251,10 +270,13 @@ public class BudgetsController : ControllerBase
     // GET: api/budgets/summary/vs-expense
     [HttpGet("summary/vs-expense")]
     public async Task<IActionResult> GetBudgetVsExpense(
-        [FromQuery] int userId,
         [FromQuery] int year,
         [FromQuery] int month)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var budget = await _context.Budgets
             .FirstOrDefaultAsync(b =>
                 b.UserId == userId &&

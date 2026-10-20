@@ -6,7 +6,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DashboardController : ControllerBase
+[Authorize]
+public class DashboardController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -16,26 +17,21 @@ public class DashboardController : ControllerBase
     }
 
     // GET: api/dashboard/summary
+    // Always scoped to the authenticated user's ID from the validated JWT.
     [HttpGet("summary")]
-    public async Task<IActionResult> GetDashboardSummary(
-        [FromQuery] int? userId)
+    public async Task<IActionResult> GetDashboardSummary()
     {
-        var incomeQuery = _context.Income.AsQueryable();
-        var expenseQuery = _context.Expenses.AsQueryable();
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (userId.HasValue)
-        {
-            incomeQuery = incomeQuery
-                .Where(i => i.UserId == userId.Value);
+        var userId = CurrentUserId.Value;
 
-            expenseQuery = expenseQuery
-                .Where(e => e.UserId == userId.Value);
-        }
-
-        var totalIncome = await incomeQuery
+        var totalIncome = await _context.Income
+            .Where(i => i.UserId == userId)
             .SumAsync(i => i.Amount);
 
-        var totalExpenses = await expenseQuery
+        var totalExpenses = await _context.Expenses
+            .Where(e => e.UserId == userId)
             .SumAsync(e => e.Amount);
 
         var balance = totalIncome - totalExpenses;
@@ -54,23 +50,18 @@ public class DashboardController : ControllerBase
     // GET: api/dashboard/monthly-summary
     [HttpGet("monthly-summary")]
     public async Task<IActionResult> GetMonthlySummary(
-    [FromQuery] int year,
-    [FromQuery] int? userId)
+    [FromQuery] int year)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
+
         var incomeQuery = _context.Income
-            .Where(i => i.IncomeDate.Year == year);
+            .Where(i => i.UserId == userId && i.IncomeDate.Year == year);
 
         var expenseQuery = _context.Expenses
-            .Where(e => e.ExpenseDate.Year == year);
-
-        if (userId.HasValue)
-        {
-            incomeQuery = incomeQuery
-                .Where(i => i.UserId == userId.Value);
-
-            expenseQuery = expenseQuery
-                .Where(e => e.UserId == userId.Value);
-        }
+            .Where(e => e.UserId == userId && e.ExpenseDate.Year == year);
 
         var income = await incomeQuery
             .GroupBy(i => i.IncomeDate.Month)
@@ -114,21 +105,17 @@ public class DashboardController : ControllerBase
     }
     // GET: api/dashboard/recent-transactions
     [HttpGet("recent-transactions")]
-    public async Task<IActionResult> GetRecentTransactions(
-    [FromQuery] int? userId)
+    public async Task<IActionResult> GetRecentTransactions()
     {
-        var query = _context.Transactions
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
+
+        var transactions = await _context.Transactions
             .Include(t => t.Category)
             .Include(t => t.PaymentMode)
-            .AsQueryable();
-
-        if (userId.HasValue)
-        {
-            query = query
-                .Where(t => t.UserId == userId.Value);
-        }
-
-        var transactions = await query
+            .Where(t => t.UserId == userId)
             .OrderByDescending(t => t.TransactionDate)
             .ThenByDescending(t => t.TransactionId)
             .Take(5)
@@ -140,20 +127,16 @@ public class DashboardController : ControllerBase
 
     // GET: api/dashboard/expense-by-category
     [HttpGet("expense-by-category")]
-    public async Task<IActionResult> GetExpenseByCategory(
-    [FromQuery] int? userId)
+    public async Task<IActionResult> GetExpenseByCategory()
     {
-        var query = _context.Expenses
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
+
+        var expensesByCategory = await _context.Expenses
             .Include(e => e.Category)
-            .AsQueryable();
-
-        if (userId.HasValue)
-        {
-            query = query
-                .Where(e => e.UserId == userId.Value);
-        }
-
-        var expensesByCategory = await query
+            .Where(e => e.UserId == userId)
             .GroupBy(e => new
             {
                 e.CategoryId,

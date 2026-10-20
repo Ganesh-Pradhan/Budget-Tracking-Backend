@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class IncomeSourcesController : ControllerBase
+[Authorize]
+public class IncomeSourcesController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 

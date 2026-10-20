@@ -5,9 +5,6 @@ namespace BudgetTracker.API.DTOs;
 public class CreateTransferDto
 {
     [Required]
-    public int UserId { get; set; }
-
-    [Required]
     public int FromAccountId { get; set; }
 
     [Required]

@@ -8,7 +8,8 @@ namespace BudgetTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TransfersController : ControllerBase
+[Authorize]
+public class TransfersController : ApiControllerBase
 {
     private readonly BudgetTrackerDbContext _context;
 
@@ -19,13 +20,15 @@ public class TransfersController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetTransfers(
-        [FromQuery] int? userId,
         [FromQuery] int? fromAccountId,
         [FromQuery] int? toAccountId,
         [FromQuery] string? search,
         int page = 1,
         int pageSize = 5)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
         if (page < 1)
             page = 1;
 
@@ -35,10 +38,10 @@ public class TransfersController : ControllerBase
         if (pageSize > 100)
             pageSize = 100;
 
-        var query = _context.Transfers.AsQueryable();
-
-        if (userId.HasValue)
-            query = query.Where(t => t.UserId == userId.Value);
+        var userId = CurrentUserId.Value;
+        var query = _context.Transfers
+            .Where(t => t.UserId == userId)
+            .AsQueryable();
 
         if (fromAccountId.HasValue)
             query = query.Where(t =>
@@ -81,9 +84,13 @@ public class TransfersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTransfer(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var transfer = await _context.Transfers
             .FirstOrDefaultAsync(t =>
-                t.TransferId == id);
+                t.TransferId == id && t.UserId == userId);
 
         if (transfer == null)
             return NotFound(new
@@ -98,19 +105,15 @@ public class TransfersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateTransfer(CreateTransferDto dto)
     {
-        var userExists = await _context.Users
-            .AnyAsync(u => u.UserId == dto.UserId);
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (!userExists)
-        {
-            return BadRequest(new
-            {
-                message = "User not found."
-            });
-        }
+        var userId = CurrentUserId.Value;
 
         var fromAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.FromAccountId);
+            .FirstOrDefaultAsync(a =>
+                a.AccountId == dto.FromAccountId &&
+                a.UserId == userId);
 
         if (fromAccount == null)
         {
@@ -128,16 +131,10 @@ public class TransfersController : ControllerBase
             });
         }
 
-        if (fromAccount.UserId != dto.UserId)
-        {
-            return BadRequest(new
-            {
-                message = "From account does not belong to the user."
-            });
-        }
-
         var toAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.ToAccountId);
+            .FirstOrDefaultAsync(a =>
+                a.AccountId == dto.ToAccountId &&
+                a.UserId == userId);
 
         if (toAccount == null)
         {
@@ -152,14 +149,6 @@ public class TransfersController : ControllerBase
             return BadRequest(new
             {
                 message = "To account is inactive."
-            });
-        }
-
-        if (toAccount.UserId != dto.UserId)
-        {
-            return BadRequest(new
-            {
-                message = "To account does not belong to the user."
             });
         }
 
@@ -181,7 +170,7 @@ public class TransfersController : ControllerBase
 
         var transfer = new Transfer
         {
-            UserId = dto.UserId,
+            UserId = userId,
             FromAccountId = dto.FromAccountId,
             ToAccountId = dto.ToAccountId,
             Amount = dto.Amount,
@@ -210,8 +199,13 @@ public class TransfersController : ControllerBase
         int id,
         UpdateTransferDto dto)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var transfer = await _context.Transfers
-            .FirstOrDefaultAsync(t => t.TransferId == id);
+            .FirstOrDefaultAsync(t =>
+                t.TransferId == id && t.UserId == userId);
 
         if (transfer == null)
         {
@@ -328,8 +322,13 @@ public class TransfersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTransfer(int id)
     {
+        var authError = RequireAuth();
+        if (authError != null) return authError;
+
+        var userId = CurrentUserId.Value;
         var transfer = await _context.Transfers
-            .FirstOrDefaultAsync(t => t.TransferId == id);
+            .FirstOrDefaultAsync(t =>
+                t.TransferId == id && t.UserId == userId);
 
         if (transfer == null)
         {
@@ -369,13 +368,14 @@ public class TransfersController : ControllerBase
 
 
     [HttpGet("summary")]
-    public async Task<IActionResult> GetTransferSummary(
-    [FromQuery] int? userId)
+    public async Task<IActionResult> GetTransferSummary()
     {
-        var query = _context.Transfers.AsQueryable();
+        var authError = RequireAuth();
+        if (authError != null) return authError;
 
-        if (userId.HasValue)
-            query = query.Where(t => t.UserId == userId.Value);
+        var userId = CurrentUserId.Value;
+        var query = _context.Transfers
+            .Where(t => t.UserId == userId);
 
         var totalTransfers = await query.CountAsync();
 
