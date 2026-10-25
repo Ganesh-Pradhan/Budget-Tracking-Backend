@@ -44,9 +44,6 @@ public class AccountsController : ApiControllerBase
         if (!string.IsNullOrWhiteSpace(accountType))
             query = query.Where(a => a.AccountType == accountType);
 
-        if (!string.IsNullOrWhiteSpace(accountType))
-            query = query.Where(a => a.AccountType == accountType);
-
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(a => a.AccountName.Contains(search));
 
