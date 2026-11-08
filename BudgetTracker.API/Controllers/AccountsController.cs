@@ -159,7 +159,21 @@ public class AccountsController : ApiControllerBase
         account.Balance = dto.Balance;
         account.IsActive = dto.IsActive;
 
-        await _context.SaveChangesAsync();
+        // Bump the concurrency token so a concurrent update that loaded an older
+        // RowVersion will fail its UPDATE WHERE clause and raise a conflict.
+        account.RowVersion = Guid.NewGuid().ToByteArray();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Conflict(new
+            {
+                message = "Account was modified by another request. Please reload and try again."
+            });
+        }
 
         return Ok(account);
     }
@@ -187,8 +201,39 @@ public class AccountsController : ApiControllerBase
                 message = "Account cannot be deleted while it has a balance."
             });
         }
+
+        var hasRelatedRecords = await _context.Income.AnyAsync(i =>
+                i.AccountId == id && i.UserId == userId)
+            || await _context.Expenses.AnyAsync(e =>
+                e.AccountId == id && e.UserId == userId)
+            || await _context.Transfers.AnyAsync(t =>
+                t.UserId == userId && (t.FromAccountId == id || t.ToAccountId == id))
+            || await _context.RecurringTransactions.AnyAsync(r =>
+                r.AccountId == id && r.UserId == userId);
+
+        if (hasRelatedRecords)
+        {
+            return BadRequest(new
+            {
+                message = "Account cannot be deleted because it has related financial records " +
+                          "(income, expenses, transfers, or recurring transactions). " +
+                          "Move or remove those records first."
+            });
+        }
+
         _context.Accounts.Remove(account);
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Conflict(new
+            {
+                message = "Account was modified by another request. Please reload and try again."
+            });
+        }
 
         return Ok(new
         {
@@ -207,23 +252,23 @@ public class AccountsController : ApiControllerBase
         var userId = CurrentUserId.Value;
         var query = _context.Accounts.Where(a => a.UserId == userId);
 
-        var totalAccounts = await query.CountAsync();
-
-        var totalBalance = await query
-            .SumAsync(a => a.Balance);
-
-        var activeAccounts = await query
-            .CountAsync(a => a.IsActive);
-
-        var inactiveAccounts = await query
-            .CountAsync(a => !a.IsActive);
+        var summary = await query
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                totalAccounts = g.Count(),
+                totalBalance = g.Sum(a => a.Balance),
+                activeAccounts = g.Count(a => a.IsActive),
+                inactiveAccounts = g.Count(a => !a.IsActive)
+            })
+            .FirstOrDefaultAsync();
 
         return Ok(new
         {
-            totalAccounts,
-            totalBalance,
-            activeAccounts,
-            inactiveAccounts
+            totalAccounts = summary?.totalAccounts ?? 0,
+            totalBalance = summary?.totalBalance ?? 0m,
+            activeAccounts = summary?.activeAccounts ?? 0,
+            inactiveAccounts = summary?.inactiveAccounts ?? 0
         });
     }
 }

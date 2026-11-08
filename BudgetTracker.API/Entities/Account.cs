@@ -31,6 +31,9 @@ public class Account
 
     public DateTime CreatedDate { get; set; }
 
+    [ConcurrencyCheck]
+    public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
     [ForeignKey(nameof(UserId))]
     public User? User { get; set; }
 }
