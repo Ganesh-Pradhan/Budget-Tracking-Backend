@@ -22,6 +22,11 @@ public interface IAuthService
 
 public class AuthService : IAuthService
 {
+    // Used to keep login timing roughly constant when the submitted email
+    // does not exist, reducing user-enumeration via timing differences.
+    private static readonly string DummyPasswordHash =
+        BCrypt.Net.BCrypt.HashPassword("not-a-real-password");
+
     private readonly BudgetTrackerDbContext _context;
     private readonly IConfiguration _configuration;
 
@@ -63,6 +68,8 @@ public class AuthService : IAuthService
 
         if (user == null)
         {
+            // Keep a comparable code path for unknown emails.
+            BCrypt.Net.BCrypt.Verify(dto.Password, DummyPasswordHash);
             return null;
         }
 
@@ -104,9 +111,18 @@ public class AuthService : IAuthService
     private AuthResponseDto GenerateAuthResponse(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(
+        var key = Encoding.UTF8.GetBytes(
             _configuration["Jwt:Key"]
             ?? throw new InvalidOperationException("JWT Key is not configured."));
+
+        var issuer = _configuration["Jwt:Issuer"] ?? "BudgetTrackerAPI";
+        var audience = _configuration["Jwt:Audience"] ?? "BudgetTrackerClient";
+
+        if (!int.TryParse(_configuration["Jwt:ExpiryHours"], out var expiryHours) ||
+            expiryHours < 1 || expiryHours > 168)
+        {
+            expiryHours = 24;
+        }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -117,11 +133,12 @@ public class AuthService : IAuthService
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             }),
-            Expires = DateTime.UtcNow.AddHours(
-                int.Parse(_configuration["Jwt:ExpiryHours"] ?? "24")),
+            Expires = DateTime.UtcNow.AddHours(expiryHours),
+            Issuer = issuer,
+            Audience = audience,
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature),
+                SecurityAlgorithms.HmacSha256),
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
