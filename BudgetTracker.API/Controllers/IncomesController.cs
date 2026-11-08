@@ -220,7 +220,7 @@ public class IncomesController : ApiControllerBase
         }
 
         var newAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.AccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == dto.AccountId && a.UserId == userId);
 
         if (newAccount == null)
         {
@@ -238,17 +238,9 @@ public class IncomesController : ApiControllerBase
             });
         }
 
-        if (newAccount.UserId != income.UserId)
-        {
-            return BadRequest(new
-            {
-                message = "Account does not belong to the user."
-            });
-        }
-
 
         var oldAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == income.AccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == income.AccountId && a.UserId == userId);
 
         if (oldAccount == null)
         {
@@ -295,7 +287,7 @@ public class IncomesController : ApiControllerBase
         }
 
         var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == income.AccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == income.AccountId && a.UserId == userId);
 
         if (account == null)
         {

@@ -26,14 +26,18 @@ public class DashboardController : ApiControllerBase
 
         var userId = CurrentUserId.Value;
 
-        var totalIncome = await _context.Income
+        var incomeTask = _context.Income
             .Where(i => i.UserId == userId)
             .SumAsync(i => i.Amount);
 
-        var totalExpenses = await _context.Expenses
+        var expenseTask = _context.Expenses
             .Where(e => e.UserId == userId)
             .SumAsync(e => e.Amount);
 
+        await Task.WhenAll(incomeTask, expenseTask);
+
+        var totalIncome = await incomeTask;
+        var totalExpenses = await expenseTask;
         var balance = totalIncome - totalExpenses;
 
         return Ok(new
@@ -63,7 +67,7 @@ public class DashboardController : ApiControllerBase
         var expenseQuery = _context.Expenses
             .Where(e => e.UserId == userId && e.ExpenseDate.Year == year);
 
-        var income = await incomeQuery
+        var incomeTask = incomeQuery
             .GroupBy(i => i.IncomeDate.Month)
             .Select(g => new
             {
@@ -72,7 +76,7 @@ public class DashboardController : ApiControllerBase
             })
             .ToListAsync();
 
-        var expenses = await expenseQuery
+        var expenseTask = expenseQuery
             .GroupBy(e => e.ExpenseDate.Month)
             .Select(g => new
             {
@@ -80,6 +84,11 @@ public class DashboardController : ApiControllerBase
                 expense = g.Sum(e => e.Amount)
             })
             .ToListAsync();
+
+        await Task.WhenAll(incomeTask, expenseTask);
+
+        var income = await incomeTask;
+        var expenses = await expenseTask;
 
         var monthlySummary = Enumerable.Range(1, 12)
             .Select(month =>

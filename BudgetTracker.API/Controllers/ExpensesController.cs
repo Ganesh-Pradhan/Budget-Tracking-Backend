@@ -321,7 +321,7 @@ public class ExpensesController : ApiControllerBase
         }
 
         var oldAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == expense.AccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == expense.AccountId && a.UserId == userId);
 
         if (oldAccount == null)
         {
@@ -379,7 +379,7 @@ public class ExpensesController : ApiControllerBase
         }
 
         var account = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == expense.AccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == expense.AccountId && a.UserId == userId);
 
         if (account == null)
         {

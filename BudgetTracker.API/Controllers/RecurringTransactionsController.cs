@@ -286,22 +286,23 @@ public class RecurringTransactionsController : ApiControllerBase
         var query = _context.RecurringTransactions
             .Where(r => r.UserId == userId);
 
-        var totalRecurringTransactions = await query.CountAsync();
-
-        var totalAmount = await query.SumAsync(r => r.Amount);
-
-        var activeRecurringTransactions =
-            await query.CountAsync(r => r.IsActive);
-
-        var inactiveRecurringTransactions =
-            await query.CountAsync(r => !r.IsActive);
+        var summary = await query
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                totalRecurringTransactions = g.Count(),
+                totalAmount = g.Sum(r => r.Amount),
+                activeRecurringTransactions = g.Count(r => r.IsActive),
+                inactiveRecurringTransactions = g.Count(r => !r.IsActive)
+            })
+            .FirstOrDefaultAsync();
 
         return Ok(new
         {
-            totalRecurringTransactions,
-            totalAmount,
-            activeRecurringTransactions,
-            inactiveRecurringTransactions
+            totalRecurringTransactions = summary?.totalRecurringTransactions ?? 0,
+            totalAmount = summary?.totalAmount ?? 0m,
+            activeRecurringTransactions = summary?.activeRecurringTransactions ?? 0,
+            inactiveRecurringTransactions = summary?.inactiveRecurringTransactions ?? 0
         });
     }
 }

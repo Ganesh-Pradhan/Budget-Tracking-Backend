@@ -216,7 +216,7 @@ public class TransfersController : ApiControllerBase
         }
 
         var newFromAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.FromAccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == dto.FromAccountId && a.UserId == userId);
 
         if (newFromAccount == null)
         {
@@ -241,7 +241,7 @@ public class TransfersController : ApiControllerBase
             });
         }
         var newToAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == dto.ToAccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == dto.ToAccountId && a.UserId == userId);
 
         if (newToAccount == null)
         {
@@ -276,11 +276,11 @@ public class TransfersController : ApiControllerBase
 
         var oldFromAccount = await _context.Accounts
             .FirstOrDefaultAsync(a =>
-                a.AccountId == transfer.FromAccountId);
+                a.AccountId == transfer.FromAccountId && a.UserId == userId);
 
         var oldToAccount = await _context.Accounts
             .FirstOrDefaultAsync(a =>
-                a.AccountId == transfer.ToAccountId);
+                a.AccountId == transfer.ToAccountId && a.UserId == userId);
 
         if (oldFromAccount == null || oldToAccount == null)
         {
@@ -339,10 +339,10 @@ public class TransfersController : ApiControllerBase
         }
 
         var fromAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == transfer.FromAccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == transfer.FromAccountId && a.UserId == userId);
 
         var toAccount = await _context.Accounts
-            .FirstOrDefaultAsync(a => a.AccountId == transfer.ToAccountId);
+            .FirstOrDefaultAsync(a => a.AccountId == transfer.ToAccountId && a.UserId == userId);
 
         if (fromAccount == null || toAccount == null)
         {
@@ -377,14 +377,19 @@ public class TransfersController : ApiControllerBase
         var query = _context.Transfers
             .Where(t => t.UserId == userId);
 
-        var totalTransfers = await query.CountAsync();
-
-        var totalAmount = await query.SumAsync(t => t.Amount);
+        var summary = await query
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                totalTransfers = g.Count(),
+                totalAmount = g.Sum(t => t.Amount)
+            })
+            .FirstOrDefaultAsync();
 
         return Ok(new
         {
-            totalTransfers,
-            totalAmount
+            totalTransfers = summary?.totalTransfers ?? 0,
+            totalAmount = summary?.totalAmount ?? 0m
         });
     }
 }
