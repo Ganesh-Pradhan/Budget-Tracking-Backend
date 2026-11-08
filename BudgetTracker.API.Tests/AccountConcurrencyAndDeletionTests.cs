@@ -178,11 +178,38 @@ public class AccountConcurrencyAndDeletionTests : IClassFixture<CustomWebApplica
     {
         var c = await RegisterAsync($"conc{Guid.NewGuid():N}@example.com");
         var id = await Account(c, 100m);
-        var taskA = c.PutAsJsonAsync($"/api/accounts/{id}", new { accountType = "Bank", accountName = $"PA{Guid.NewGuid():N}", bankName = "Bank A", accountNumber = "123", balance = 50m, isActive = true });
-        var taskB = c.PutAsJsonAsync($"/api/accounts/{id}", new { accountType = "Bank", accountName = $"PB{Guid.NewGuid():N}", bankName = "Bank B", accountNumber = "456", balance = 75m, isActive = true });
+
+        // Capture the current RowVersion before issuing concurrent updates.
+        var getResp = await c.GetAsync($"/api/accounts/{id}");
+        getResp.EnsureSuccessStatusCode();
+        using var getDoc = JsonDocument.Parse(await getResp.Content.ReadAsStringAsync());
+        var rowVersion = getDoc.RootElement.GetProperty("rowVersion").GetString();
+
+        var taskA = c.PutAsJsonAsync($"/api/accounts/{id}", new
+        {
+            accountType = "Bank",
+            accountName = $"PA{Guid.NewGuid():N}",
+            bankName = "Bank A",
+            accountNumber = "123",
+            balance = 50m,
+            isActive = true,
+            rowVersion
+        });
+        var taskB = c.PutAsJsonAsync($"/api/accounts/{id}", new
+        {
+            accountType = "Bank",
+            accountName = $"PB{Guid.NewGuid():N}",
+            bankName = "Bank B",
+            accountNumber = "456",
+            balance = 75m,
+            isActive = true,
+            rowVersion
+        });
         var results = await Task.WhenAll(taskA, taskB);
-        foreach (var r in results)
-            Assert.True(r.IsSuccessStatusCode || r.StatusCode == HttpStatusCode.Conflict, $"Unexpected status {r.StatusCode}");
+        var successCount = results.Count(r => r.IsSuccessStatusCode);
+        var conflictCount = results.Count(r => r.StatusCode == HttpStatusCode.Conflict);
+        Assert.Equal(1, successCount);
+        Assert.Equal(1, conflictCount);
         var final = await Balance(c, id);
         Assert.True(final == 50m || final == 75m, $"Expected balance 50 or 75, got {final}");
     }
@@ -208,5 +235,128 @@ public class AccountConcurrencyAndDeletionTests : IClassFixture<CustomWebApplica
             }
             await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => db1.SaveChangesAsync());
         }
+    }
+
+    [Fact]
+    public async Task AccountCreation_InitializesRowVersion()
+    {
+        var c = await RegisterAsync($"initrv{Guid.NewGuid():N}@example.com");
+        var id = await Account(c, 100m);
+
+        var resp = await c.GetAsync($"/api/accounts/{id}");
+        resp.EnsureSuccessStatusCode();
+        using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
+        var rowVersion = doc.RootElement.GetProperty("rowVersion").GetString();
+
+        Assert.False(string.IsNullOrEmpty(rowVersion), "RowVersion must not be empty after creation.");
+        var bytes = Convert.FromBase64String(rowVersion);
+        Assert.Equal(16, bytes.Length);
+    }
+
+    [Fact]
+    public async Task AccountUpdate_ChangesRowVersion()
+    {
+        var c = await RegisterAsync($"upderv{Guid.NewGuid():N}@example.com");
+        var id = await Account(c, 100m);
+
+        var getResp = await c.GetAsync($"/api/accounts/{id}");
+        getResp.EnsureSuccessStatusCode();
+        using var getDoc = JsonDocument.Parse(await getResp.Content.ReadAsStringAsync());
+        var originalRowVersion = getDoc.RootElement.GetProperty("rowVersion").GetString();
+
+        var putResp = await c.PutAsJsonAsync($"/api/accounts/{id}", new
+        {
+            accountType = "Bank",
+            accountName = $"Updated{Guid.NewGuid():N}",
+            bankName = "Bank",
+            accountNumber = "123",
+            balance = 200m,
+            isActive = true,
+            rowVersion = originalRowVersion
+        });
+        putResp.EnsureSuccessStatusCode();
+        using var putDoc = JsonDocument.Parse(await putResp.Content.ReadAsStringAsync());
+        var newRowVersion = putDoc.RootElement.GetProperty("rowVersion").GetString();
+
+        Assert.NotEqual(originalRowVersion, newRowVersion);
+    }
+
+    [Fact]
+    public async Task UpdateAccount_WithStaleRowVersion_Returns409()
+    {
+        var c = await RegisterAsync($"staleupd{Guid.NewGuid():N}@example.com");
+        var id = await Account(c, 100m);
+
+        var getResp = await c.GetAsync($"/api/accounts/{id}");
+        getResp.EnsureSuccessStatusCode();
+        using var getDoc = JsonDocument.Parse(await getResp.Content.ReadAsStringAsync());
+        var originalRowVersion = getDoc.RootElement.GetProperty("rowVersion").GetString();
+
+        // Change the RowVersion directly in the database to simulate a concurrent update.
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BudgetTrackerDbContext>();
+            var acct = await db.Accounts.FirstAsync(a => a.AccountId == id);
+            acct.Balance = 999m;
+            acct.RowVersion = Guid.NewGuid().ToByteArray();
+            await db.SaveChangesAsync();
+        }
+
+        // Attempting to update with the stale RowVersion should return 409.
+        var putResp = await c.PutAsJsonAsync($"/api/accounts/{id}", new
+        {
+            accountType = "Bank",
+            accountName = $"Stale{Guid.NewGuid():N}",
+            bankName = "Bank",
+            accountNumber = "123",
+            balance = 200m,
+            isActive = true,
+            rowVersion = originalRowVersion
+        });
+        Assert.Equal(HttpStatusCode.Conflict, putResp.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeleteAccount_WithStaleRowVersion_Returns409()
+    {
+        var c = await RegisterAsync($"staledel{Guid.NewGuid():N}@example.com");
+        var id = await Account(c, 0m);
+
+        var getResp = await c.GetAsync($"/api/accounts/{id}");
+        getResp.EnsureSuccessStatusCode();
+        using var getDoc = JsonDocument.Parse(await getResp.Content.ReadAsStringAsync());
+        var originalRowVersion = getDoc.RootElement.GetProperty("rowVersion").GetString();
+
+        // Change the RowVersion directly in the database to simulate a concurrent update.
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BudgetTrackerDbContext>();
+            var acct = await db.Accounts.FirstAsync(a => a.AccountId == id);
+            acct.RowVersion = Guid.NewGuid().ToByteArray();
+            await db.SaveChangesAsync();
+        }
+
+        // Attempting to delete with the stale RowVersion should return 409.
+        var delResp = await c.DeleteAsync($"/api/accounts/{id}?rowVersion={originalRowVersion}");
+        Assert.Equal(HttpStatusCode.Conflict, delResp.StatusCode);
+
+        // Account should still exist.
+        Assert.Equal(HttpStatusCode.OK, (await c.GetAsync($"/api/accounts/{id}")).StatusCode);
+    }
+
+    [Fact]
+    public async Task DeleteAccount_WithRowVersion_DeletesSuccessfully()
+    {
+        var c = await RegisterAsync($"delrv{Guid.NewGuid():N}@example.com");
+        var id = await Account(c, 0m);
+
+        var getResp = await c.GetAsync($"/api/accounts/{id}");
+        getResp.EnsureSuccessStatusCode();
+        using var getDoc = JsonDocument.Parse(await getResp.Content.ReadAsStringAsync());
+        var rowVersion = getDoc.RootElement.GetProperty("rowVersion").GetString();
+
+        var delResp = await c.DeleteAsync($"/api/accounts/{id}?rowVersion={rowVersion}");
+        Assert.Equal(HttpStatusCode.OK, delResp.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync($"/api/accounts/{id}")).StatusCode);
     }
 }

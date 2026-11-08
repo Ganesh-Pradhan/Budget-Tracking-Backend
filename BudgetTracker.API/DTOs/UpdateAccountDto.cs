@@ -22,4 +22,10 @@ public class UpdateAccountDto
     public decimal Balance { get; set; }
 
     public bool IsActive { get; set; }
+
+    /// <summary>
+    /// Concurrency token received by the client when the account was last read.
+    /// The server rejects the update if this does not match the current database value.
+    /// </summary>
+    public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 }

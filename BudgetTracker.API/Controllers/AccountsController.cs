@@ -120,7 +120,8 @@ public class AccountsController : ApiControllerBase
             AccountNumber = dto.AccountNumber,
             Balance = dto.Balance,
             IsActive = dto.IsActive,
-            CreatedDate = DateTime.Now
+            CreatedDate = DateTime.Now,
+            RowVersion = Guid.NewGuid().ToByteArray()
         };
 
         _context.Accounts.Add(account);
@@ -152,6 +153,17 @@ public class AccountsController : ApiControllerBase
                 message = "Account not found."
             });
 
+        // Optimistic concurrency: reject the update if the client-supplied
+        // RowVersion does not match the current database value.
+        var clientRowVersion = dto.RowVersion ?? Array.Empty<byte>();
+        if (!account.RowVersion.SequenceEqual(clientRowVersion))
+        {
+            return Conflict(new
+            {
+                message = "Account was modified by another request. Please reload and try again."
+            });
+        }
+
         account.AccountType = dto.AccountType;
         account.AccountName = dto.AccountName;
         account.BankName = dto.BankName;
@@ -180,7 +192,7 @@ public class AccountsController : ApiControllerBase
 
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAccount(int id)
+    public async Task<IActionResult> DeleteAccount(int id, [FromQuery] string? rowVersion)
     {
         var authError = RequireAuth();
         if (authError != null) return authError;
@@ -219,6 +231,30 @@ public class AccountsController : ApiControllerBase
                           "(income, expenses, transfers, or recurring transactions). " +
                           "Move or remove those records first."
             });
+        }
+
+        // Optimistic concurrency: reject the delete if the client-supplied
+        // RowVersion does not match the current database value.
+        if (!string.IsNullOrEmpty(rowVersion))
+        {
+            try
+            {
+                var clientRowVersion = Convert.FromBase64String(rowVersion);
+                if (!account.RowVersion.SequenceEqual(clientRowVersion))
+                {
+                    return Conflict(new
+                    {
+                        message = "Account was modified by another request. Please reload and try again."
+                    });
+                }
+            }
+            catch (FormatException)
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid rowVersion format."
+                });
+            }
         }
 
         _context.Accounts.Remove(account);
